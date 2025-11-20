@@ -1,0 +1,80 @@
+name: bookwise-ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      ConnectionStrings__SqlServer: ${{ secrets.SQL_CONNECTION }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore backend
+        run: dotnet restore src/backend/BookWise.sln
+
+      - name: Run backend tests
+        run: dotnet test src/backend/BookWise.sln --no-build
+
+      - name: Apply migrations (dry-run)
+        run: dotnet tool run dotnet-ef migrations script -p src/backend/BookWise.Infrastructure/BookWise.Infrastructure.csproj -s src/backend/BookWise.Api/BookWise.Api.csproj --idempotent --output ef-migration.sql
+
+      - name: Upload migration script
+        uses: actions/upload-artifact@v4
+        with:
+          name: ef-migration
+          path: ef-migration.sql
+
+  frontend:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            src/frontend/bookwise-dashboard/package-lock.json
+            src/frontend/component-library/package-lock.json
+      - name: Install shared UI deps
+        run: |
+          cd src/frontend/component-library
+          npm ci
+          npm run build
+      - name: Install dashboard deps
+        run: |
+          cd src/frontend/bookwise-dashboard
+          npm ci
+          npm run build
+
+  deploy_iac:
+    if: github.ref == 'refs/heads/main'
+    needs:
+      - build
+      - frontend
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Deploy Bicep
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az deployment sub create \
+              --location eastus \
+              --template-file infrastructure/iac/main.bicep \
+              --parameters resourceGroupName=rg-bookwise-prod sqlAdminLogin=${{ secrets.SQL_ADMIN_LOGIN }} sqlAdminPassword=${{ secrets.SQL_ADMIN_PASSWORD }} environment=prod

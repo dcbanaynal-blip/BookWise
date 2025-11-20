@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": ".NET Launch BookWise API",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/backend/BookWise.Api/bin/Debug/net8.0/BookWise.Api.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/backend/BookWise.Api",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ConnectionStrings__SqlServer": "Server=fadi.com.ph,21435;Database=BookWise;User Id=BookWiseApi;Password=5F7DE2CF-9B5D-42A0-ADF3-542FC610EF3D;"
+      }
+    }
+  ]
+}

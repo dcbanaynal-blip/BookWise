@@ -1,0 +1,16 @@
+C:\gitrepo\BookWise\src\backend\BookWise.Application\bin\Debug\net9.0\BookWise.Application.deps.json
+C:\gitrepo\BookWise\src\backend\BookWise.Application\bin\Debug\net9.0\BookWise.Application.dll
+C:\gitrepo\BookWise\src\backend\BookWise.Application\bin\Debug\net9.0\BookWise.Application.pdb
+C:\gitrepo\BookWise\src\backend\BookWise.Application\bin\Debug\net9.0\BookWise.Domain.dll
+C:\gitrepo\BookWise\src\backend\BookWise.Application\bin\Debug\net9.0\BookWise.Domain.pdb
+C:\gitrepo\BookWise\src\backend\BookWise.Application\obj\Debug\net9.0\BookWise.Application.csproj.AssemblyReference.cache
+C:\gitrepo\BookWise\src\backend\BookWise.Application\obj\Debug\net9.0\BookWise.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\gitrepo\BookWise\src\backend\BookWise.Application\obj\Debug\net9.0\BookWise.Application.AssemblyInfoInputs.cache
+C:\gitrepo\BookWise\src\backend\BookWise.Application\obj\Debug\net9.0\BookWise.Application.AssemblyInfo.cs
+C:\gitrepo\BookWise\src\backend\BookWise.Application\obj\Debug\net9.0\BookWise.Application.csproj.CoreCompileInputs.cache
+C:\gitrepo\BookWise\src\backend\BookWise.Application\obj\Debug\net9.0\BookWise.Application.sourcelink.json
+C:\gitrepo\BookWise\src\backend\BookWise.Application\obj\Debug\net9.0\BookWise.214A7E35.Up2Date
+C:\gitrepo\BookWise\src\backend\BookWise.Application\obj\Debug\net9.0\BookWise.Application.dll
+C:\gitrepo\BookWise\src\backend\BookWise.Application\obj\Debug\net9.0\refint\BookWise.Application.dll
+C:\gitrepo\BookWise\src\backend\BookWise.Application\obj\Debug\net9.0\BookWise.Application.pdb
+C:\gitrepo\BookWise\src\backend\BookWise.Application\obj\Debug\net9.0\ref\BookWise.Application.dll
