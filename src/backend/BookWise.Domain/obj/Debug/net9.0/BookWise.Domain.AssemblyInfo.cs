@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BookWise.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+52d2d8f4fff67cf0f344f6d0c99083cd70a18c0d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0805e856414be1f3e28b8a02884d38e555b39f65")]
 [assembly: System.Reflection.AssemblyProductAttribute("BookWise.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BookWise.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

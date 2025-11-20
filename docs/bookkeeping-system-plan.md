@@ -150,7 +150,7 @@ App
 ## 6. OCR Pipeline
 
 ### Image Preprocessing
-- Client compresses/resizes before upload; server normalizes (deskew, grayscale) via ImageSharp for better OCR accuracy.
+- Client compresses/resizes before upload; server normalizes (deskew, grayscale) via Magick.NET for better OCR accuracy.
 - Store originals plus processed versions for audit.
 - Flow: user scans or uploads a receipt, server persists the original image bytes in the `Receipts.ImageData` VARBINARY column for proofing, then triggers preprocessing, AWS Textract extraction, and finally stores structured data/OCR text back in SQL Server.
 

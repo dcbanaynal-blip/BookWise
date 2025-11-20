@@ -1,12 +1,11 @@
-using BookWise.Infrastructure.Persistence;
+using BookWise.Infrastructure.Ocr;
 using BookWise.OcrWorker;
-using Microsoft.EntityFrameworkCore;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.AddDbContext<BookWiseDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
-
+builder.Services.Configure<OcrWorkerOptions>(builder.Configuration.GetSection("Worker"));
+builder.Services.AddBookWiseDbContext(builder.Configuration);
+builder.Services.AddInfrastructureOcr();
 builder.Services.AddHostedService<Worker>();
 
 var host = builder.Build();

@@ -1,13 +1,11 @@
-using BookWise.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+using BookWise.Infrastructure.Ocr;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-builder.Services.AddDbContext<BookWiseDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
+builder.Services.AddBookWiseDbContext(builder.Configuration);
 
 var app = builder.Build();
 

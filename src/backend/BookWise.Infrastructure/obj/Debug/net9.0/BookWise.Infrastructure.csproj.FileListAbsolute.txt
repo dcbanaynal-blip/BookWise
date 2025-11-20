@@ -18,3 +18,7 @@ C:\gitrepo\BookWise\src\backend\BookWise.Infrastructure\obj\Debug\net9.0\refint\
 C:\gitrepo\BookWise\src\backend\BookWise.Infrastructure\obj\Debug\net9.0\BookWise.Infrastructure.pdb
 C:\gitrepo\BookWise\src\backend\BookWise.Infrastructure\obj\Debug\net9.0\BookWise.Infrastructure.genruntimeconfig.cache
 C:\gitrepo\BookWise\src\backend\BookWise.Infrastructure\obj\Debug\net9.0\ref\BookWise.Infrastructure.dll
+C:\gitrepo\BookWise\src\backend\BookWise.Infrastructure\bin\Debug\net9.0\x86\leptonica-1.82.0.dll
+C:\gitrepo\BookWise\src\backend\BookWise.Infrastructure\bin\Debug\net9.0\x86\tesseract50.dll
+C:\gitrepo\BookWise\src\backend\BookWise.Infrastructure\bin\Debug\net9.0\x64\leptonica-1.82.0.dll
+C:\gitrepo\BookWise\src\backend\BookWise.Infrastructure\bin\Debug\net9.0\x64\tesseract50.dll
