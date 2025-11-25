@@ -1,6 +1,16 @@
-import { MagnifyingGlassIcon, BellIcon } from '@heroicons/react/24/outline'
+import { MagnifyingGlassIcon, BellIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline'
+import { useAuth } from '../contexts/AuthContext'
 
 export function TopBar() {
+  const { user, signOut } = useAuth()
+  const initials =
+    user?.displayName
+      ?.split(' ')
+      .map(part => part[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase() ?? user?.email?.slice(0, 2).toUpperCase() ?? 'BW'
+
   return (
     <header className="flex flex-col gap-4 border-b border-slate-200 bg-white px-6 py-4 lg:flex-row lg:items-center lg:justify-between">
       <div>
@@ -22,8 +32,15 @@ export function TopBar() {
           <BellIcon className="h-5 w-5" />
         </button>
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15 text-sm font-semibold text-primary">
-          JD
+          {initials}
         </div>
+        <button
+          onClick={signOut}
+          className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-primary hover:text-primary"
+        >
+          <ArrowLeftOnRectangleIcon className="h-4 w-4" />
+          Sign out
+        </button>
       </div>
     </header>
   )

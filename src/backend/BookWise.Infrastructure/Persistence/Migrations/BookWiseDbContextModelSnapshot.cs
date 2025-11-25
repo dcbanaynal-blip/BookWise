@@ -140,6 +140,32 @@ namespace BookWise.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReceiptId"));
 
+                    b.Property<string>("BusinessStyle")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("CurrencyCode")
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<string>("CustomerAddress")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("CustomerName")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("CustomerTaxId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("DocumentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("DiscountAmount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<byte[]>("ImageData")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
@@ -151,13 +177,56 @@ namespace BookWise.Infrastructure.Persistence.Migrations
                     b.Property<string>("OcrText")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
+
+                    b.Property<string>("PurchaseOrderNumber")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("SellerAddress")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("SellerName")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("SellerTaxId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
+                    b.Property<decimal?>("SubtotalAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("TaxAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Terms")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<decimal?>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("WithholdingTaxAmount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int?>("TransactionId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("Unknown");
 
                     b.Property<DateTime>("UploadedAt")
                         .ValueGeneratedOnAdd()
@@ -178,10 +247,49 @@ namespace BookWise.Infrastructure.Persistence.Migrations
                     b.ToTable("Receipts", (string)null);
                 });
 
+            modelBuilder.Entity("BookWise.Domain.Entities.ReceiptLineItem", b =>
+                {
+                    b.Property<int>("ReceiptLineItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReceiptLineItemId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<int>("ReceiptId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Unit")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("ReceiptLineItemId");
+
+                    b.HasIndex("ReceiptId");
+
+                    b.ToTable("ReceiptLineItems", (string)null);
+                });
+
             modelBuilder.Entity("BookWise.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("UserId")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -189,13 +297,15 @@ namespace BookWise.Infrastructure.Persistence.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("SYSUTCDATETIME()");
 
-                    b.Property<string>("Email")
+                    b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
-                    b.Property<byte[]>("PasswordHash")
-                        .HasColumnType("varbinary(512)");
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Role")
                         .IsRequired()
@@ -204,10 +314,40 @@ namespace BookWise.Infrastructure.Persistence.Migrations
 
                     b.HasKey("UserId");
 
-                    b.HasIndex("Email")
-                        .IsUnique();
+                    b.HasIndex("CreatedBy");
 
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("BookWise.Domain.Entities.UserEmail", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserEmails", (string)null);
                 });
 
             modelBuilder.Entity("BookWise.Domain.Entities.Account", b =>
@@ -267,6 +407,47 @@ namespace BookWise.Infrastructure.Persistence.Migrations
                     b.Navigation("Uploader");
                 });
 
+            modelBuilder.Entity("BookWise.Domain.Entities.ReceiptLineItem", b =>
+                {
+                    b.HasOne("BookWise.Domain.Entities.Receipt", "Receipt")
+                        .WithMany("LineItems")
+                        .HasForeignKey("ReceiptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Receipt");
+                });
+
+            modelBuilder.Entity("BookWise.Domain.Entities.User", b =>
+                {
+                    b.HasOne("BookWise.Domain.Entities.User", "CreatedByUser")
+                        .WithMany("InvitedUsers")
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUser");
+                });
+
+            modelBuilder.Entity("BookWise.Domain.Entities.UserEmail", b =>
+                {
+                    b.HasOne("BookWise.Domain.Entities.User", "Creator")
+                        .WithMany("UserEmailsCreated")
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BookWise.Domain.Entities.User", "User")
+                        .WithMany("Emails")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Creator");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("BookWise.Domain.Entities.Account", b =>
                 {
                     b.Navigation("Children");
@@ -281,11 +462,22 @@ namespace BookWise.Infrastructure.Persistence.Migrations
                     b.Navigation("Receipt");
                 });
 
+            modelBuilder.Entity("BookWise.Domain.Entities.Receipt", b =>
+                {
+                    b.Navigation("LineItems");
+                });
+
             modelBuilder.Entity("BookWise.Domain.Entities.User", b =>
                 {
+                    b.Navigation("Emails");
+
+                    b.Navigation("InvitedUsers");
+
                     b.Navigation("Transactions");
 
                     b.Navigation("UploadedReceipts");
+
+                    b.Navigation("UserEmailsCreated");
                 });
 #pragma warning restore 612, 618
         }

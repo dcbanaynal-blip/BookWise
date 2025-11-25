@@ -27,10 +27,19 @@ CREATE TABLE Accounts (
 
 CREATE TABLE Users (
     UserId UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    Email NVARCHAR(256) NOT NULL UNIQUE,
-    PasswordHash VARBINARY(512) NOT NULL,
+    FirstName NVARCHAR(255) NOT NULL,
+    LastName NVARCHAR(255) NOT NULL,
     Role NVARCHAR(40) NOT NULL,
-    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CreatedBy UNIQUEIDENTIFIER NOT NULL REFERENCES Users(UserId)
+);
+
+CREATE TABLE UserEmails (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    UserId UNIQUEIDENTIFIER NOT NULL REFERENCES Users(UserId),
+    Email NVARCHAR(255) NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CreatedBy UNIQUEIDENTIFIER NOT NULL REFERENCES Users(UserId)
 );
 
 CREATE TABLE Transactions (
@@ -54,12 +63,40 @@ CREATE TABLE Entries (
 CREATE TABLE Receipts (
     ReceiptId INT IDENTITY PRIMARY KEY,
     TransactionId INT NULL REFERENCES Transactions(TransactionId),
+    Type NVARCHAR(20) NOT NULL DEFAULT 'Unknown',
+    DocumentDate DATETIME2 NULL,
+    SellerName NVARCHAR(255),
+    SellerTaxId NVARCHAR(50),
+    SellerAddress NVARCHAR(512),
+    CustomerName NVARCHAR(255),
+    CustomerTaxId NVARCHAR(50),
+    CustomerAddress NVARCHAR(512),
+    Terms NVARCHAR(120),
+    PurchaseOrderNumber NVARCHAR(120),
+    BusinessStyle NVARCHAR(120),
+    Notes NVARCHAR(1024),
     ImageData VARBINARY(MAX) NOT NULL,
     MimeType NVARCHAR(80),
     UploadedBy UNIQUEIDENTIFIER NOT NULL REFERENCES Users(UserId),
     UploadedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    SubtotalAmount DECIMAL(18,2),
+    TaxAmount DECIMAL(18,2),
+    DiscountAmount DECIMAL(18,2),
+    WithholdingTaxAmount DECIMAL(18,2),
+    TotalAmount DECIMAL(18,2),
+    CurrencyCode NVARCHAR(3),
     OcrText NVARCHAR(MAX),
     Status NVARCHAR(30) NOT NULL DEFAULT 'Pending'
+);
+
+CREATE TABLE ReceiptLineItems (
+    ReceiptLineItemId INT IDENTITY PRIMARY KEY,
+    ReceiptId INT NOT NULL REFERENCES Receipts(ReceiptId),
+    Quantity DECIMAL(18,2) NOT NULL,
+    Unit NVARCHAR(50),
+    Description NVARCHAR(512) NOT NULL,
+    UnitPrice DECIMAL(18,2) NOT NULL,
+    Amount DECIMAL(18,2) NOT NULL
 );
 ```
 

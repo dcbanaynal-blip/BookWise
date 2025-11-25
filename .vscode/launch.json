@@ -5,7 +5,7 @@
       "name": ".NET Launch BookWise API",
       "type": "coreclr",
       "request": "launch",
-      "program": "${workspaceFolder}/src/backend/BookWise.Api/bin/Debug/net8.0/BookWise.Api.dll",
+      "program": "${workspaceFolder}/src/backend/BookWise.Api/bin/Debug/net9.0/BookWise.Api.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/backend/BookWise.Api",
       "stopAtEntry": false,

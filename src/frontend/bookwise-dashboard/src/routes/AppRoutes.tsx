@@ -4,38 +4,52 @@ import { DashboardPage } from '../pages/DashboardPage'
 import { TransactionsPage } from '../pages/TransactionsPage'
 import { ReceiptsPage } from '../pages/ReceiptsPage'
 import { ReportsPage } from '../pages/ReportsPage'
+import { ProtectedRoute } from '../components/ProtectedRoute'
+import { LoginPage } from '../pages/LoginPage'
 
 const router = createBrowserRouter([
   {
+    path: '/login',
+    element: <LoginPage />,
+  },
+  {
     path: '/',
     element: (
-      <DashboardLayout>
-        <DashboardPage />
-      </DashboardLayout>
+      <ProtectedRoute>
+        <DashboardLayout>
+          <DashboardPage />
+        </DashboardLayout>
+      </ProtectedRoute>
     ),
   },
   {
     path: '/transactions',
     element: (
-      <DashboardLayout>
-        <TransactionsPage />
-      </DashboardLayout>
+      <ProtectedRoute>
+        <DashboardLayout>
+          <TransactionsPage />
+        </DashboardLayout>
+      </ProtectedRoute>
     ),
   },
   {
     path: '/receipts',
     element: (
-      <DashboardLayout>
-        <ReceiptsPage />
-      </DashboardLayout>
+      <ProtectedRoute>
+        <DashboardLayout>
+          <ReceiptsPage />
+        </DashboardLayout>
+      </ProtectedRoute>
     ),
   },
   {
     path: '/reports',
     element: (
-      <DashboardLayout>
-        <ReportsPage />
-      </DashboardLayout>
+      <ProtectedRoute>
+        <DashboardLayout>
+          <ReportsPage />
+        </DashboardLayout>
+      </ProtectedRoute>
     ),
   },
 ])

@@ -11,20 +11,27 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.ToTable("Users");
         builder.HasKey(u => u.UserId);
 
-        builder.Property(u => u.Email)
-            .HasMaxLength(256)
+        builder.Property(u => u.FirstName)
+            .HasMaxLength(255)
             .IsRequired();
 
-        builder.HasIndex(u => u.Email).IsUnique();
+        builder.Property(u => u.LastName)
+            .HasMaxLength(255)
+            .IsRequired();
 
         builder.Property(u => u.Role)
             .HasMaxLength(40)
             .IsRequired();
 
-        builder.Property(u => u.PasswordHash)
-            .HasColumnType("varbinary(512)");
-
         builder.Property(u => u.CreatedAt)
             .HasDefaultValueSql("SYSUTCDATETIME()");
+
+        builder.Property(u => u.CreatedBy)
+            .IsRequired();
+
+        builder.HasOne(u => u.CreatedByUser)
+            .WithMany(u => u.InvitedUsers)
+            .HasForeignKey(u => u.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

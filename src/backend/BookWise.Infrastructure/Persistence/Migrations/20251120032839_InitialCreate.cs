@@ -38,14 +38,48 @@ namespace BookWise.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
-                    PasswordHash = table.Column<byte[]>(type: "varbinary(512)", nullable: true),
+                    FirstName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Role = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()")
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.UserId);
+                    table.ForeignKey(
+                        name: "FK_Users_Users_createdby",
+                        column: x => x.CreatedBy,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserEmails",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserEmails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserEmails_Users",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_UserEmails_Users_createdby",
+                        column: x => x.CreatedBy,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -107,10 +141,28 @@ namespace BookWise.Infrastructure.Persistence.Migrations
                     ReceiptId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     TransactionId = table.Column<int>(type: "int", nullable: true),
+                    Type = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false, defaultValue: "Unknown"),
+                    DocumentDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SellerName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    SellerTaxId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    SellerAddress = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
+                    CustomerName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    CustomerTaxId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    CustomerAddress = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
+                    Terms = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: true),
+                    PurchaseOrderNumber = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: true),
+                    BusinessStyle = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: true),
                     ImageData = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     MimeType = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: true),
                     UploadedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
+                    SubtotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    TaxAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    DiscountAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    WithholdingTaxAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    CurrencyCode = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: true),
                     OcrText = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false)
                 },
@@ -128,6 +180,30 @@ namespace BookWise.Infrastructure.Persistence.Migrations
                         principalTable: "Users",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ReceiptLineItems",
+                columns: table => new
+                {
+                    ReceiptLineItemId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ReceiptId = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Unit = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReceiptLineItems", x => x.ReceiptLineItemId);
+                    table.ForeignKey(
+                        name: "FK_ReceiptLineItems_Receipts_ReceiptId",
+                        column: x => x.ReceiptId,
+                        principalTable: "Receipts",
+                        principalColumn: "ReceiptId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -164,6 +240,11 @@ namespace BookWise.Infrastructure.Persistence.Migrations
                 column: "UploadedBy");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ReceiptLineItems_ReceiptId",
+                table: "ReceiptLineItems",
+                column: "ReceiptId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Transactions_CreatedBy",
                 table: "Transactions",
                 column: "CreatedBy");
@@ -176,15 +257,30 @@ namespace BookWise.Infrastructure.Persistence.Migrations
                 filter: "[ReferenceNumber] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_Email",
+                name: "IX_UserEmails_CreatedBy",
+                table: "UserEmails",
+                column: "CreatedBy");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserEmails_UserId",
+                table: "UserEmails",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_CreatedBy",
                 table: "Users",
-                column: "Email",
-                unique: true);
+                column: "CreatedBy");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ReceiptLineItems");
+
+            migrationBuilder.DropTable(
+                name: "UserEmails");
+
             migrationBuilder.DropTable(
                 name: "Entries");
 
