@@ -2,6 +2,20 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## Environment variables
+
+Create a `.env.local` (ignored by git) with the Firebase settings plus the API base URL so the dashboard can verify allowlisted users with the ASP.NET Core backend:
+
+```
+VITE_FIREBASE_API_KEY=<from Firebase console>
+VITE_FIREBASE_AUTH_DOMAIN=<from Firebase console>
+VITE_FIREBASE_PROJECT_ID=<from Firebase console>
+VITE_FIREBASE_APP_ID=<from Firebase console>
+VITE_API_BASE_URL=https://localhost:7043
+```
+
+`VITE_API_BASE_URL` must point at the BookWise API origin (the default HTTPS port is 7043 when running locally via `dotnet run`). The frontend calls `${VITE_API_BASE_URL}/api/users/me` after each Firebase login to ensure the signed-in Google account exists in the BookWise `UserEmails` allowlist.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh

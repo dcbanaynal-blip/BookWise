@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BookWise.OcrWorker")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c44ee9458846942edfbac41b9e77308a403509ea")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fff37a19454dbbed294e90487f400ee04fa7a330")]
 [assembly: System.Reflection.AssemblyProductAttribute("BookWise.OcrWorker")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BookWise.OcrWorker")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

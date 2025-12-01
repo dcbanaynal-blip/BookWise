@@ -4,7 +4,7 @@ import { useAuth } from "@/auth/AuthContext";
 import { useEffect, useState } from "react";
 
 export function SignIn() {
-  const { signInWithGoogle, loading, user } = useAuth();
+  const { signInWithGoogle, loading, user, accessError } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const redirectTo = location.state?.from?.pathname ?? "/dashboard/home";
@@ -23,7 +23,6 @@ export function SignIn() {
 
     try {
       await signInWithGoogle();
-      navigate(redirectTo, { replace: true });
     } catch (err) {
       setError(err?.message || "Unable to sign in with Google right now.");
     } finally {
@@ -41,9 +40,9 @@ export function SignIn() {
           </Typography>
         </div>
         <div className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2 space-y-6">
-          {error && (
+          {(error || accessError) && (
             <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-              {error}
+              {error || accessError}
             </div>
           )}
           <div className="space-y-4">

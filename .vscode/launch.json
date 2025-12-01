@@ -11,6 +11,7 @@
       "stopAtEntry": false,
       "env": {
         "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "https://localhost:7043;http://localhost:5244",
         "ConnectionStrings__SqlServer": "Server=fadi.com.ph,21435;Database=BookWise;User Id=BookWiseApi;Password=5F7DE2CF-9B5D-42A0-ADF3-542FC610EF3D;"
       }
     }

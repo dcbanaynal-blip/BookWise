@@ -15,11 +15,13 @@ import {
   useContext,
   type PropsWithChildren,
 } from 'react'
+import { fetchCurrentUser } from '../config/api'
 import { firebaseAuth } from '../config/firebase'
 
 type AuthContextValue = {
   user: User | null
   loading: boolean
+  accessError: string | null
   signIn: (email: string, password: string) => Promise<void>
   signInWithGoogle: () => Promise<void>
   signOut: () => Promise<void>
@@ -29,15 +31,57 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function FirebaseAuthProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [initializing, setInitializing] = useState(true)
+  const [checkingAccess, setCheckingAccess] = useState(false)
+  const [accessError, setAccessError] = useState<string | null>(null)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(firebaseAuth, currentUser => {
       setUser(currentUser)
-      setLoading(false)
+      setInitializing(false)
     })
     return unsubscribe
   }, [])
+
+  useEffect(() => {
+    if (!user) {
+      setCheckingAccess(false)
+      return
+    }
+
+    let active = true
+    const controller = new AbortController()
+
+    const validateAllowlist = async () => {
+      setCheckingAccess(true)
+      try {
+        const token = await user.getIdToken()
+        await fetchCurrentUser(token, controller.signal)
+        if (active) {
+          setAccessError(null)
+        }
+      } catch (error) {
+        if (!active) {
+          return
+        }
+        setAccessError(
+          'Your Google account is not authorized for BookWise. Please contact an administrator for access.',
+        )
+        await firebaseSignOut(firebaseAuth)
+      } finally {
+        if (active) {
+          setCheckingAccess(false)
+        }
+      }
+    }
+
+    void validateAllowlist()
+
+    return () => {
+      active = false
+      controller.abort()
+    }
+  }, [user])
 
   const signIn = useCallback(async (email: string, password: string) => {
     await signInWithEmailAndPassword(firebaseAuth, email, password)
@@ -54,8 +98,15 @@ export function FirebaseAuthProvider({ children }: PropsWithChildren) {
   }, [])
 
   const value = useMemo(
-    () => ({ user, loading, signIn, signInWithGoogle, signOut }),
-    [user, loading, signIn, signInWithGoogle, signOut],
+    () => ({
+      user,
+      loading: initializing || checkingAccess,
+      accessError,
+      signIn,
+      signInWithGoogle,
+      signOut,
+    }),
+    [user, initializing, checkingAccess, accessError, signIn, signInWithGoogle, signOut],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

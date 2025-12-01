@@ -100,6 +100,14 @@ CREATE TABLE ReceiptLineItems (
 );
 ```
 
+### User Roles
+
+- `Admin` – full access. Can invite/manage users, configure accounts, approve entries, and adjust system settings.
+- `Accountant` – day-to-day bookkeeping. Can create/edit transactions, upload receipts, and run financial reports but cannot manage platform configuration or invite new users.
+- `Viewer` – read-only access. Can review dashboards, drill into transactions/receipts, and export reports without modifying data.
+
+Role constants live at `src/backend/BookWise.Domain/Authorization/UserRoles.cs` so API policies and seeding logic can reference a single source of truth.
+
 ### Relationships and Constraints
 - `Accounts` self-references for chart-of-accounts hierarchy; enforce summary vs leaf accounts via triggers or computed flags. `ExternalAccountNumber` stays immutable/unique to mirror the legacy accounting system for synchronization.
 - `Transactions` aggregate multiple `Entries`; enforce balanced transactions via trigger ensuring `SUM(Debit) = SUM(Credit)`.
@@ -204,7 +212,7 @@ App
 ## 7. Security and Validation
 
 - **Input Validation**: FluentValidation or .NET data annotations on DTOs; server-side checks for amount balance, valid dates, allowed MIME types.
-- **Authentication**: Firebase Authentication handles user sign-in; only pre-authorized emails seeded in the `Users` table may complete onboarding. The API verifies Firebase ID tokens via Firebase Admin SDK and maps the token UID/email to internal user records.
+- **Authentication**: Firebase Authentication handles user sign-in; only pre-authorized emails seeded in the `Users`/`UserEmails` tables may complete onboarding. The API now enforces this allowlist by rejecting any verified Firebase token whose email is not present in `UserEmails`. On startup the database seeds an initial `Admin` account for `dcbanaynal@fadi.com.ph` so environments immediately have a privileged operator.
 - **Role-Based Access Control**: Custom authorization policies leverage Users/roles once Firebase tokens are validated; enforce roles like `Admin`, `Accountant`, `Viewer` for posting entries, running reports, or viewing receipts.
 - **Data Integrity**: Database constraints (FKs, CHECKs), transaction scopes for multi-table mutations, background job retries with idempotency keys.
 - **Secrets & Compliance**: Store connection strings/keys in Azure Key Vault or user secrets; enforce TLS and encrypt receipt binaries at rest through SQL Server Transparent Data Encryption or column-level encryption.
