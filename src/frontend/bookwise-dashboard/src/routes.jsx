@@ -5,9 +5,12 @@ import {
   InformationCircleIcon,
   ServerStackIcon,
   RectangleStackIcon,
+  UsersIcon,
 } from "@heroicons/react/24/solid";
-import { Home, Profile, Tables, Notifications } from "@/pages/dashboard";
+import { Navigate } from "react-router-dom";
+import { Home, Profile, Tables, Notifications, UserManagement } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
+import { RequireRole } from "@/components/RequireRole";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -40,6 +43,20 @@ export const routes = [
         name: "notifications",
         path: "/notifications",
         element: <Notifications />,
+      },
+      {
+        icon: <UsersIcon {...icon} />,
+        name: "user management",
+        path: "/users",
+        requiresAdmin: true,
+        element: (
+          <RequireRole
+            allowedRoles={["Admin"]}
+            fallback={<Navigate to="/dashboard/home" replace />}
+          >
+            <UserManagement />
+          </RequireRole>
+        ),
       },
     ],
   },

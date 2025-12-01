@@ -10,6 +10,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
     {
         builder.ToTable("Users");
         builder.HasKey(u => u.UserId);
+        builder.Property(u => u.UserId)
+            .ValueGeneratedNever();
 
         builder.Property(u => u.FirstName)
             .HasMaxLength(255)
@@ -27,6 +29,12 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasDefaultValueSql("SYSUTCDATETIME()");
 
         builder.Property(u => u.CreatedBy)
+            .IsRequired();
+
+        builder.Property(u => u.UpdatedAt)
+            .HasDefaultValueSql("SYSUTCDATETIME()");
+
+        builder.Property(u => u.UpdatedBy)
             .IsRequired();
 
         builder.HasOne(u => u.CreatedByUser)

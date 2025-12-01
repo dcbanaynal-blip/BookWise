@@ -93,6 +93,7 @@ export function FirebaseAuthProvider({ children }: PropsWithChildren) {
       signIn,
       signInWithGoogle,
       signOut,
+      hasRole: (...roles: string[]) => Boolean(profile && roles.includes(profile.role)),
     }),
     [user, profile, initializing, checkingAccess, accessError, signIn, signInWithGoogle, signOut],
   )

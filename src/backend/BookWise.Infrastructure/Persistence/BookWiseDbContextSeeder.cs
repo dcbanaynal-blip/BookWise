@@ -35,7 +35,9 @@ public static class BookWiseDbContextSeeder
                 LastName = "Banaynal",
                 Role = UserRoles.Admin,
                 CreatedAt = now,
-                CreatedBy = adminUserId
+                CreatedBy = adminUserId,
+                UpdatedAt = now,
+                UpdatedBy = adminUserId
             };
 
             var allowlistedEmail = new UserEmail

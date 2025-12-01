@@ -59,7 +59,9 @@ public class UserManagementService : IUserManagementService
             LastName = lastName,
             Role = role,
             CreatedAt = now,
-            CreatedBy = actorUserId
+            CreatedBy = actorUserId,
+            UpdatedAt = now,
+            UpdatedBy = actorUserId
         };
 
         foreach (var email in normalizedEmails)
@@ -75,7 +77,7 @@ public class UserManagementService : IUserManagementService
         }
 
         _dbContext.Users.Add(user);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await SaveChangesGuardingEmailConflicts(cancellationToken);
 
         _logger.LogInformation("User {Email} invited by {ActorId}", normalizedEmails.FirstOrDefault(), actorUserId);
         return user;
@@ -92,7 +94,9 @@ public class UserManagementService : IUserManagementService
         }
 
         user.Role = role;
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        user.UpdatedAt = DateTime.UtcNow;
+        user.UpdatedBy = actorUserId;
+        await SaveChangesGuardingEmailConflicts(cancellationToken);
         await _dbContext.Entry(user).Collection(u => u.Emails).LoadAsync(cancellationToken);
 
         _logger.LogInformation("User {UserId} role updated to {Role} by {ActorId}", userId, role, actorUserId);
@@ -106,26 +110,23 @@ public class UserManagementService : IUserManagementService
 
         var now = DateTime.UtcNow;
 
-        var user = await _dbContext.Users
-            .Include(u => u.Emails)
-            .SingleOrDefaultAsync(u => u.UserId == userId, cancellationToken);
+        var userExists = await _dbContext.Users.AnyAsync(u => u.UserId == userId, cancellationToken);
 
-        if (user is null)
+        if (!userExists)
         {
             throw new InvalidOperationException("User not found.");
         }
 
         var userEmail = new UserEmail
         {
-            Id = Guid.NewGuid(),
-            UserId = user.UserId,
+            UserId = userId,
             Email = normalizedEmail,
             CreatedAt = now,
             CreatedBy = actorUserId
         };
 
-        user.Emails.Add(userEmail);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        _dbContext.UserEmails.Add(userEmail);
+        await SaveChangesGuardingEmailConflicts(cancellationToken);
 
         _logger.LogInformation("Email {Email} added to user {UserId} by {ActorId}", normalizedEmail, userId, actorUserId);
         return userEmail;
@@ -154,7 +155,7 @@ public class UserManagementService : IUserManagementService
         }
 
         _dbContext.UserEmails.Remove(userEmail);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await SaveChangesGuardingEmailConflicts(cancellationToken);
 
         _logger.LogInformation("Email {EmailId} removed from user {UserId} by {ActorId}", emailId, userId, actorUserId);
     }
@@ -187,4 +188,35 @@ public class UserManagementService : IUserManagementService
             .Distinct(StringComparer.OrdinalIgnoreCase);
 
     private static string NormalizeEmail(string email) => email.Trim().ToLowerInvariant();
+
+    private async Task SaveChangesGuardingEmailConflicts(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "Concurrency conflict detected while updating user emails.");
+            throw new InvalidOperationException(
+                "The user was modified or deleted by another operation. Refresh and try again.", ex);
+        }
+        catch (DbUpdateException ex) when (IsUniqueEmailConstraint(ex))
+        {
+            _logger.LogWarning(ex, "Duplicate email detected while persisting user changes.");
+            throw new InvalidOperationException("Email address already registered.", ex);
+        }
+    }
+
+    private static bool IsUniqueEmailConstraint(DbUpdateException ex)
+    {
+        var message = ex.InnerException?.Message ?? ex.Message;
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return false;
+        }
+
+        return message.Contains("UserEmails", StringComparison.OrdinalIgnoreCase)
+            && message.Contains("duplicate", StringComparison.OrdinalIgnoreCase);
+    }
 }

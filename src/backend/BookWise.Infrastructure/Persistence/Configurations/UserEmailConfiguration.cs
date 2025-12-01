@@ -10,6 +10,8 @@ public class UserEmailConfiguration : IEntityTypeConfiguration<UserEmail>
     {
         builder.ToTable("UserEmails");
         builder.HasKey(e => e.Id);
+        builder.Property(e => e.Id)
+            .ValueGeneratedOnAdd();
 
         builder.Property(e => e.Email)
             .HasMaxLength(255)

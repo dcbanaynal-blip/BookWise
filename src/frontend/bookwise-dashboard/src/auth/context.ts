@@ -10,6 +10,7 @@ export type AuthContextValue = {
   signIn: (email: string, password: string) => Promise<void>
   signInWithGoogle: () => Promise<void>
   signOut: () => Promise<void>
+  hasRole: (...roles: string[]) => boolean
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)

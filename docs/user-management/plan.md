@@ -16,17 +16,17 @@
    - [x] 3.2 Wrap the fetchers with React Query hook factories (`useUsersQuery`, `useInviteUserMutation`, etc.) for caching and optimistic updates.
 
 4. **UI/UX Surfaces**
-   - [ ] 4.1 Add a “User Management” route under the dashboard layout, visible only to admins (update sidebar nav).
-   - [ ] 4.2 Build the main grid/table:
-       - [ ] Columns: Name, Primary Email, Additional Emails, Role, Created/Updated info, Status/Actions.
-       - [ ] Row actions for editing role, managing emails, deactivating accounts.
-   - [ ] 4.3 Modals/forms:
-       - [ ] Invite user modal (first/last name, primary email, role).
-       - [ ] Manage emails modal (list/add/remove emails).
-       - [ ] Change role confirmation dialog referencing `UserRoles`.
-   - [ ] 4.4 Provide inline notifications/snackbars for success/failure and loading states (skeleton rows or spinners).
+   - [x] 4.1 Add a "User Management" route under the dashboard layout, visible only to admins (update sidebar nav).
+   - [x] 4.2 Build the main grid/table:
+       - [x] Columns: Name, Primary Email, Additional Emails, Role, Created/Updated info, Status/Actions.
+       - [x] Row actions for editing role, managing emails, deactivating accounts.
+   - [x] 4.3 Modals/forms:
+       - [x] Invite user modal (first/last name, primary email, role).
+       - [x] Manage emails modal (list/add/remove emails).
+       - [x] Change role confirmation dialog referencing `UserRoles`.
+   - [x] 4.4 Provide inline notifications/snackbars for success/failure and loading states (skeleton rows or spinners).
 
 5. **Testing & Validation**
-   - [ ] 5.1 Backend: add unit/integration tests covering the new services (unique email constraint, role transitions, unauthorized access).
-   - [ ] 5.2 Frontend: add component/unit tests for hooks and pages (e.g., verifying admin guard behavior) plus manual QA checklist (invite flow, role change, unauthorized access).
-   - [ ] 5.3 Update documentation (README/plan) with instructions on managing users via UI, including required environment variables and permissions.
+   - [x] 5.1 Backend: add unit/integration tests covering the new services (unique email constraint, role transitions, unauthorized access).
+   - [x] 5.2 Frontend: add component/unit tests for hooks and pages (e.g., verifying admin guard behavior) plus manual QA checklist (invite flow, role change, unauthorized access).
+   - [x] 5.3 Update documentation (README/plan) with instructions on managing users via UI, including required environment variables and permissions.

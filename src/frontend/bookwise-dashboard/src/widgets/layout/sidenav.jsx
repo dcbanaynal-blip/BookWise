@@ -7,11 +7,13 @@ import {
   IconButton,
   Typography,
 } from "@material-tailwind/react";
+import { useAuth } from "@/auth";
 import { useMaterialTailwindController, setOpenSidenav } from "@/context";
 
 export function Sidenav({ brandImg, brandName, routes }) {
   const [controller, dispatch] = useMaterialTailwindController();
   const { sidenavColor, sidenavType, openSidenav } = controller;
+  const { profile } = useAuth();
   const sidenavTypes = {
     dark: "bg-gradient-to-br from-gray-800 to-gray-900",
     white: "bg-white shadow-sm",
@@ -60,7 +62,9 @@ export function Sidenav({ brandImg, brandName, routes }) {
                 </Typography>
               </li>
             )}
-            {pages.map(({ icon, name, path }) => (
+            {pages
+              .filter(({ requiresAdmin }) => !requiresAdmin || profile?.role === "Admin" || profile?.isAdmin)
+              .map(({ icon, name, path }) => (
               <li key={name}>
                 <NavLink to={`/${layout}${path}`}>
                   {({ isActive }) => (

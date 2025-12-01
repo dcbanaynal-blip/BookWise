@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookWise.Api", "BookWise.Ap
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookWise.OcrWorker", "BookWise.OcrWorker\BookWise.OcrWorker.csproj", "{597DC979-32F2-443B-A1D6-ADC39426289B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookWise.Infrastructure.Tests", "..\..\tests\BookWise.Infrastructure.Tests\BookWise.Infrastructure.Tests.csproj", "{2931FF15-64F8-4B7B-9361-78747CB71B0C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,18 @@ Global
 		{597DC979-32F2-443B-A1D6-ADC39426289B}.Release|x64.Build.0 = Release|Any CPU
 		{597DC979-32F2-443B-A1D6-ADC39426289B}.Release|x86.ActiveCfg = Release|Any CPU
 		{597DC979-32F2-443B-A1D6-ADC39426289B}.Release|x86.Build.0 = Release|Any CPU
+		{2931FF15-64F8-4B7B-9361-78747CB71B0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2931FF15-64F8-4B7B-9361-78747CB71B0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2931FF15-64F8-4B7B-9361-78747CB71B0C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2931FF15-64F8-4B7B-9361-78747CB71B0C}.Debug|x64.Build.0 = Debug|Any CPU
+		{2931FF15-64F8-4B7B-9361-78747CB71B0C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2931FF15-64F8-4B7B-9361-78747CB71B0C}.Debug|x86.Build.0 = Debug|Any CPU
+		{2931FF15-64F8-4B7B-9361-78747CB71B0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2931FF15-64F8-4B7B-9361-78747CB71B0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2931FF15-64F8-4B7B-9361-78747CB71B0C}.Release|x64.ActiveCfg = Release|Any CPU
+		{2931FF15-64F8-4B7B-9361-78747CB71B0C}.Release|x64.Build.0 = Release|Any CPU
+		{2931FF15-64F8-4B7B-9361-78747CB71B0C}.Release|x86.ActiveCfg = Release|Any CPU
+		{2931FF15-64F8-4B7B-9361-78747CB71B0C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -8,6 +8,8 @@ public class User
     public string Role { get; set; } = null!;
     public DateTime CreatedAt { get; set; }
     public Guid CreatedBy { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public Guid UpdatedBy { get; set; }
 
     public User CreatedByUser { get; set; } = null!;
     public ICollection<FinancialTransaction> Transactions { get; set; } = new List<FinancialTransaction>();
