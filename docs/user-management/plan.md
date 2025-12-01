@@ -7,9 +7,9 @@
    - [x] 1.4 Introduce audit logging for user changes (creator/updater ids, timestamps) and return structured error messages for the UI.
 
 2. **Authentication & Authorization Integration**
-   - [ ] 2.1 Extend `/api/users/me` response to include role metadata already present in the BookWise user record.
-   - [ ] 2.2 In the React auth context, expose the BookWise role and helper hooks such as `useHasRole`.
-   - [ ] 2.3 Create a `<RequireRole>` component that blocks non-admins from reaching the new screens.
+   - [x] 2.1 Extend `/api/users/me` response to include role metadata already present in the BookWise user record.
+   - [x] 2.2 In the React auth context, expose the BookWise role and helper hooks such as `useHasRole`.
+   - [x] 2.3 Create a `<RequireRole>` component that blocks non-admins from reaching the new screens.
 
 3. **Front-End API Client Layer**
    - [ ] 3.1 Extend `src/config/api.ts` (or a new module) with typed functions for the new admin endpoints, automatically attaching the Firebase ID token.

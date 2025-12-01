@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using BookWise.Domain.Authorization;
 using BookWise.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -51,6 +52,7 @@ public class UsersController : ControllerBase
             user.LastName,
             primaryEmail,
             user.Role,
+            user.Role == UserRoles.Admin,
             emails);
     }
 }

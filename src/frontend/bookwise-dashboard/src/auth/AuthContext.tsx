@@ -15,13 +15,15 @@ import {
   useContext,
   type PropsWithChildren,
 } from 'react'
-import { fetchCurrentUser } from '../config/api'
+import { fetchCurrentUser, type UserProfileResponse } from '../config/api'
 import { firebaseAuth } from '../config/firebase'
 
 type AuthContextValue = {
   user: User | null
+  profile: UserProfileResponse | null
   loading: boolean
   accessError: string | null
+  hasRole: (...roles: string[]) => boolean
   signIn: (email: string, password: string) => Promise<void>
   signInWithGoogle: () => Promise<void>
   signOut: () => Promise<void>
@@ -34,6 +36,7 @@ export function FirebaseAuthProvider({ children }: PropsWithChildren) {
   const [initializing, setInitializing] = useState(true)
   const [checkingAccess, setCheckingAccess] = useState(false)
   const [accessError, setAccessError] = useState<string | null>(null)
+  const [profile, setProfile] = useState<UserProfileResponse | null>(null)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(firebaseAuth, currentUser => {
@@ -46,6 +49,7 @@ export function FirebaseAuthProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     if (!user) {
       setCheckingAccess(false)
+      setProfile(null)
       return
     }
 
@@ -56,9 +60,10 @@ export function FirebaseAuthProvider({ children }: PropsWithChildren) {
       setCheckingAccess(true)
       try {
         const token = await user.getIdToken()
-        await fetchCurrentUser(token, controller.signal)
+        const currentUserProfile = await fetchCurrentUser(token, controller.signal)
         if (active) {
           setAccessError(null)
+          setProfile(currentUserProfile)
         }
       } catch (error) {
         if (!active) {
@@ -68,6 +73,7 @@ export function FirebaseAuthProvider({ children }: PropsWithChildren) {
           'Your Google account is not authorized for BookWise. Please contact an administrator for access.',
         )
         await firebaseSignOut(firebaseAuth)
+        setProfile(null)
       } finally {
         if (active) {
           setCheckingAccess(false)
@@ -95,18 +101,31 @@ export function FirebaseAuthProvider({ children }: PropsWithChildren) {
 
   const signOut = useCallback(async () => {
     await firebaseSignOut(firebaseAuth)
+    setProfile(null)
   }, [])
+
+  const hasRole = useCallback(
+    (...roles: string[]) => {
+      if (!profile || roles.length === 0) {
+        return false
+      }
+      return roles.includes(profile.role)
+    },
+    [profile],
+  )
 
   const value = useMemo(
     () => ({
       user,
+      profile,
       loading: initializing || checkingAccess,
       accessError,
+      hasRole,
       signIn,
       signInWithGoogle,
       signOut,
     }),
-    [user, initializing, checkingAccess, accessError, signIn, signInWithGoogle, signOut],
+    [user, profile, initializing, checkingAccess, accessError, hasRole, signIn, signInWithGoogle, signOut],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
@@ -118,4 +137,9 @@ export function useAuth() {
     throw new Error('useAuth must be used within FirebaseAuthProvider')
   }
   return context
+}
+
+export function useHasRole(...roles: string[]) {
+  const { hasRole } = useAuth()
+  return hasRole(...roles)
 }

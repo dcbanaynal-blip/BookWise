@@ -12,6 +12,7 @@ export type UserProfileResponse = {
   lastName: string
   email: string
   role: string
+  isAdmin: boolean
   emails: string[]
 }
 

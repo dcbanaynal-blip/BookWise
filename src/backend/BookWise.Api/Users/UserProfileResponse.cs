@@ -9,4 +9,5 @@ public sealed record UserProfileResponse(
     string LastName,
     string Email,
     string Role,
+    bool IsAdmin,
     IReadOnlyCollection<string> Emails);
