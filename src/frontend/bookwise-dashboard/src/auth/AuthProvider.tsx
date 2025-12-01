@@ -6,37 +6,17 @@ import {
   signOut as firebaseSignOut,
   type User,
 } from 'firebase/auth'
-import {
-  createContext,
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useContext,
-  type PropsWithChildren,
-} from 'react'
-import { fetchCurrentUser, type UserProfileResponse } from '../config/api'
-import { firebaseAuth } from '../config/firebase'
-
-type AuthContextValue = {
-  user: User | null
-  profile: UserProfileResponse | null
-  loading: boolean
-  accessError: string | null
-  hasRole: (...roles: string[]) => boolean
-  signIn: (email: string, password: string) => Promise<void>
-  signInWithGoogle: () => Promise<void>
-  signOut: () => Promise<void>
-}
-
-const AuthContext = createContext<AuthContextValue | null>(null)
+import { PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react'
+import { fetchCurrentUser, type UserProfileResponse } from '@/config/api'
+import { firebaseAuth } from '@/config/firebase'
+import { AuthContext } from './context'
 
 export function FirebaseAuthProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<User | null>(null)
+  const [profile, setProfile] = useState<UserProfileResponse | null>(null)
   const [initializing, setInitializing] = useState(true)
   const [checkingAccess, setCheckingAccess] = useState(false)
   const [accessError, setAccessError] = useState<string | null>(null)
-  const [profile, setProfile] = useState<UserProfileResponse | null>(null)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(firebaseAuth, currentUser => {
@@ -65,7 +45,7 @@ export function FirebaseAuthProvider({ children }: PropsWithChildren) {
           setAccessError(null)
           setProfile(currentUserProfile)
         }
-      } catch (error) {
+      } catch {
         if (!active) {
           return
         }
@@ -104,42 +84,18 @@ export function FirebaseAuthProvider({ children }: PropsWithChildren) {
     setProfile(null)
   }, [])
 
-  const hasRole = useCallback(
-    (...roles: string[]) => {
-      if (!profile || roles.length === 0) {
-        return false
-      }
-      return roles.includes(profile.role)
-    },
-    [profile],
-  )
-
   const value = useMemo(
     () => ({
       user,
       profile,
       loading: initializing || checkingAccess,
       accessError,
-      hasRole,
       signIn,
       signInWithGoogle,
       signOut,
     }),
-    [user, profile, initializing, checkingAccess, accessError, hasRole, signIn, signInWithGoogle, signOut],
+    [user, profile, initializing, checkingAccess, accessError, signIn, signInWithGoogle, signOut],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error('useAuth must be used within FirebaseAuthProvider')
-  }
-  return context
-}
-
-export function useHasRole(...roles: string[]) {
-  const { hasRole } = useAuth()
-  return hasRole(...roles)
 }

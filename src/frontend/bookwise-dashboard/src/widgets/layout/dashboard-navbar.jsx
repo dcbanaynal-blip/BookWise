@@ -25,7 +25,7 @@ import {
   setOpenConfigurator,
   setOpenSidenav,
 } from "@/context";
-import { useAuth } from "@/auth/AuthContext";
+import { useAuth } from "@/auth";
 
 export function DashboardNavbar() {
   const [controller, dispatch] = useMaterialTailwindController();

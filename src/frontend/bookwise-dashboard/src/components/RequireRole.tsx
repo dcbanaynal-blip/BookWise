@@ -1,5 +1,5 @@
 import { PropsWithChildren, ReactNode } from 'react'
-import { useAuth } from '@/auth/AuthContext'
+import { useAuth } from '@/auth'
 
 type RequireRoleProps = PropsWithChildren<{
   allowedRoles: string[]

@@ -12,8 +12,8 @@
    - [x] 2.3 Create a `<RequireRole>` component that blocks non-admins from reaching the new screens.
 
 3. **Front-End API Client Layer**
-   - [ ] 3.1 Extend `src/config/api.ts` (or a new module) with typed functions for the new admin endpoints, automatically attaching the Firebase ID token.
-   - [ ] 3.2 Wrap the fetchers with React Query hook factories (`useUsersQuery`, `useInviteUserMutation`, etc.) for caching and optimistic updates.
+   - [x] 3.1 Extend `src/config/api.ts` (or a new module) with typed functions for the new admin endpoints, automatically attaching the Firebase ID token.
+   - [x] 3.2 Wrap the fetchers with React Query hook factories (`useUsersQuery`, `useInviteUserMutation`, etc.) for caching and optimistic updates.
 
 4. **UI/UX Surfaces**
    - [ ] 4.1 Add a “User Management” route under the dashboard layout, visible only to admins (update sidebar nav).

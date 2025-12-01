@@ -5,7 +5,7 @@ import { ThemeProvider } from '@material-tailwind/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import App from './App'
 import { MaterialTailwindControllerProvider } from '@/context'
-import { FirebaseAuthProvider } from './auth/AuthContext'
+import { FirebaseAuthProvider } from './auth'
 import '../public/css/tailwind.css'
 
 const queryClient = new QueryClient()

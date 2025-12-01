@@ -1,6 +1,6 @@
 import { Button, Typography } from "@material-tailwind/react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "@/auth/AuthContext";
+import { useAuth } from "@/auth";
 import { useEffect, useState } from "react";
 
 export function SignIn() {
