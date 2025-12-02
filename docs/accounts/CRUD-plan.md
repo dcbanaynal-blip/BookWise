@@ -10,9 +10,9 @@ BookWise models accounts as a multi-level chart of accounts where each segment (
 - [x] Cover new service/controller behavior with unit/integration tests
 
 ## Phase 2 – Front-End Data Layer
-- [ ] Create API client module (Axios/Fetch) for `/api/accounts` endpoints
-- [ ] Build React Query hooks (`useAccounts`, `useAccount`, `useCreateAccount`, etc.) with cache invalidation and error normalization
-- [ ] Ensure hooks expose metadata needed by the UI (children counts, leaf flag, validation errors)
+- [x] Create API client module (Axios/Fetch) for `/api/accounts` endpoints
+- [x] Build React Query hooks (`useAccounts`, `useAccount`, `useCreateAccount`, etc.) with cache invalidation and error normalization
+- [x] Ensure hooks expose metadata needed by the UI (children counts, leaf flag, validation errors)
 
 ## Phase 3 – UI/UX Implementation
 - [ ] Implement `AccountsPage` with tree/table visualization, expand/collapse, and search/filter controls

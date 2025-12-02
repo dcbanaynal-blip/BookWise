@@ -171,3 +171,128 @@ export async function updateUserStatus(
   }
   return (await response.json()) as UserListItemResponse
 }
+
+export type AccountResponse = {
+  accountId: number
+  externalAccountNumber: string
+  name: string
+  segmentCode: string
+  level: number
+  type: string
+  parentAccountId: number | null
+  hasChildren: boolean
+}
+
+export type AccountTreeResponse = AccountResponse & {
+  children: AccountTreeResponse[]
+}
+
+export type CreateAccountRequest = {
+  externalAccountNumber: string
+  name: string
+  segmentCode: string
+  type: string
+  parentAccountId?: number | null
+}
+
+export type UpdateAccountRequest = {
+  name: string
+  segmentCode: string
+  type: string
+}
+
+type GetAccountsOptions = {
+  includeTree?: boolean
+  search?: string
+  signal?: AbortSignal
+}
+
+export async function getAccounts(idToken: string, options?: GetAccountsOptions) {
+  const params = new URLSearchParams()
+  const includeTree = options?.includeTree ?? false
+  if (includeTree) {
+    params.set('includeTree', 'true')
+  }
+  if (options?.search) {
+    if (includeTree) {
+      throw new Error('Search cannot be combined with tree mode.')
+    }
+    params.set('search', options.search)
+  }
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/accounts${params.toString() ? `?${params.toString()}` : ''}`,
+    {
+      method: 'GET',
+      headers: await authHeaders(idToken),
+      signal: options?.signal,
+    },
+  )
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(detail || 'Failed to load accounts.')
+  }
+
+  if (includeTree) {
+    return (await response.json()) as AccountTreeResponse[]
+  }
+
+  return (await response.json()) as AccountResponse[]
+}
+
+export async function getAccountById(idToken: string, accountId: number, signal?: AbortSignal) {
+  const response = await fetch(`${API_BASE_URL}/api/accounts/${accountId}`, {
+    method: 'GET',
+    headers: await authHeaders(idToken),
+    signal,
+  })
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(detail || 'Failed to load account.')
+  }
+
+  return (await response.json()) as AccountResponse
+}
+
+export async function createAccount(idToken: string, payload: CreateAccountRequest) {
+  const response = await fetch(`${API_BASE_URL}/api/accounts`, {
+    method: 'POST',
+    headers: await authHeaders(idToken),
+    body: JSON.stringify(payload),
+  })
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(detail || 'Unable to create account.')
+  }
+  return (await response.json()) as AccountResponse
+}
+
+export async function updateAccount(
+  idToken: string,
+  accountId: number,
+  payload: UpdateAccountRequest,
+) {
+  const response = await fetch(`${API_BASE_URL}/api/accounts/${accountId}`, {
+    method: 'PUT',
+    headers: await authHeaders(idToken),
+    body: JSON.stringify(payload),
+  })
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(detail || 'Unable to update account.')
+  }
+  return (await response.json()) as AccountResponse
+}
+
+export async function deleteAccount(idToken: string, accountId: number) {
+  const response = await fetch(`${API_BASE_URL}/api/accounts/${accountId}`, {
+    method: 'DELETE',
+    headers: await authHeaders(idToken),
+  })
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(detail || 'Unable to delete account.')
+  }
+}
