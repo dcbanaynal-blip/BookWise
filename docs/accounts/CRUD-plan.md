@@ -15,10 +15,10 @@ BookWise models accounts as a multi-level chart of accounts where each segment (
 - [x] Ensure hooks expose metadata needed by the UI (children counts, leaf flag, validation errors)
 
 ## Phase 3 – UI/UX Implementation
-- [ ] Implement `AccountsPage` with tree/table visualization, expand/collapse, and search/filter controls
-- [ ] Add reusable `AccountForm` modal/drawer for create/update (pre-fill parent/level, lock external number on edit)
-- [ ] Wire row-level actions (add child, edit, delete) with guard rails for non-leaf nodes and confirmation dialogs
-- [ ] Register navigation entry and route (e.g., `/accounts`) secured to Admin/Accountant roles
+- [x] Implement `AccountsPage` with tree/table visualization, expand/collapse, and search/filter controls
+- [x] Add reusable `AccountForm` modal/drawer for create/update (pre-fill parent/level, lock external number on edit)
+- [x] Wire row-level actions (add child, edit, delete) with guard rails for non-leaf nodes and confirmation dialogs
+- [x] Register navigation entry and route (e.g., `/accounts`) secured to Admin/Accountant roles
 
 ## Phase 4 – Validation, Docs, QA
 - [ ] Add client-side validation mirroring backend rules (segment uniqueness, required parent for non-root, level increments)

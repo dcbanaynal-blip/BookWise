@@ -8,7 +8,7 @@ import {
   UsersIcon,
 } from "@heroicons/react/24/solid";
 import { Navigate } from "react-router-dom";
-import { Home, Profile, Tables, Notifications, UserManagement } from "@/pages/dashboard";
+import { Home, Profile, Tables, Notifications, UserManagement, Accounts } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 import { RequireRole } from "@/components/RequireRole";
 
@@ -43,6 +43,20 @@ export const routes = [
         name: "notifications",
         path: "/notifications",
         element: <Notifications />,
+      },
+      {
+        icon: <RectangleStackIcon {...icon} />,
+        name: "accounts",
+        path: "/accounts",
+        allowedRoles: ["Admin", "Accountant"],
+        element: (
+          <RequireRole
+            allowedRoles={["Admin", "Accountant"]}
+            fallback={<Navigate to="/dashboard/home" replace />}
+          >
+            <Accounts />
+          </RequireRole>
+        ),
       },
       {
         icon: <UsersIcon {...icon} />,

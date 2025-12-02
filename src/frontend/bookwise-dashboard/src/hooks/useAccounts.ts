@@ -15,6 +15,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 type UseAccountsOptions = {
   includeTree?: boolean
   search?: string
+  enabled?: boolean
 }
 
 type AccountsResult = AccountResponse[] | AccountTreeResponse[]
@@ -24,10 +25,14 @@ export function useAccountsQuery(options?: UseAccountsOptions) {
 
   return useQuery<AccountsResult>({
     queryKey: ['accounts', options?.includeTree ?? false, options?.search ?? ''],
-    enabled: !!user,
+    enabled: !!user && (options?.enabled ?? true),
     queryFn: async ({ signal }) => {
       const token = await user!.getIdToken()
-      return getAccounts(token, { ...options, signal })
+      return getAccounts(token, {
+        includeTree: options?.includeTree,
+        search: options?.search,
+        signal,
+      })
     },
   })
 }
