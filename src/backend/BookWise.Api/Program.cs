@@ -1,7 +1,9 @@
 using System;
 using BookWise.Api.Authentication;
 using BookWise.Api.Extensions;
+using BookWise.Application.Accounts;
 using BookWise.Application.Users;
+using BookWise.Infrastructure.Accounts;
 using BookWise.Infrastructure.Ocr;
 using BookWise.Infrastructure.Persistence;
 using BookWise.Infrastructure.Users;
@@ -24,6 +26,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddBookWiseDbContext(builder.Configuration);
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
+builder.Services.AddScoped<IAccountsService, AccountsService>();
 builder.Services.AddFirebaseAdmin(builder.Configuration, builder.Environment);
 builder.Services
     .AddAuthentication(FirebaseAuthenticationDefaults.AuthenticationScheme)

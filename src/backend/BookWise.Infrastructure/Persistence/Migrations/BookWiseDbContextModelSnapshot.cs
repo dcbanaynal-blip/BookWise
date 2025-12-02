@@ -35,6 +35,9 @@ namespace BookWise.Infrastructure.Persistence.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(120)
@@ -42,6 +45,11 @@ namespace BookWise.Infrastructure.Persistence.Migrations
 
                     b.Property<int?>("ParentAccountId")
                         .HasColumnType("int");
+
+                    b.Property<string>("SegmentCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -55,7 +63,20 @@ namespace BookWise.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ParentAccountId");
 
-                    b.ToTable("Accounts", (string)null);
+                    b.HasIndex("SegmentCode")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Accounts_RootSegmentCode")
+                        .HasFilter("[ParentAccountId] IS NULL");
+
+                    b.HasIndex("ParentAccountId", "SegmentCode")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Accounts_ParentSegmentCode")
+                        .HasFilter("[ParentAccountId] IS NOT NULL");
+
+                    b.ToTable("Accounts", (string)null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Accounts_LevelPositive", "[Level] >= 1");
+                        });
                 });
 
             modelBuilder.Entity("BookWise.Domain.Entities.Entry", b =>
@@ -160,11 +181,11 @@ namespace BookWise.Infrastructure.Persistence.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<DateTime?>("DocumentDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<decimal?>("DiscountAmount")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("DocumentDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<byte[]>("ImageData")
                         .IsRequired()
@@ -174,12 +195,12 @@ namespace BookWise.Infrastructure.Persistence.Migrations
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
 
-                    b.Property<string>("OcrText")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Notes")
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
+
+                    b.Property<string>("OcrText")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PurchaseOrderNumber")
                         .HasMaxLength(120)
@@ -215,9 +236,6 @@ namespace BookWise.Infrastructure.Persistence.Migrations
                     b.Property<decimal?>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal?>("WithholdingTaxAmount")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<int?>("TransactionId")
                         .HasColumnType("int");
 
@@ -235,6 +253,9 @@ namespace BookWise.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid>("UploadedBy")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("WithholdingTaxAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("ReceiptId");
 
@@ -263,11 +284,11 @@ namespace BookWise.Infrastructure.Persistence.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("nvarchar(512)");
 
-                    b.Property<int>("ReceiptId")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("Quantity")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ReceiptId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Unit")
                         .HasMaxLength(50)
@@ -286,10 +307,6 @@ namespace BookWise.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("BookWise.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("UserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -297,10 +314,18 @@ namespace BookWise.Infrastructure.Persistence.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("SYSUTCDATETIME()");
 
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -311,6 +336,14 @@ namespace BookWise.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("UserId");
 

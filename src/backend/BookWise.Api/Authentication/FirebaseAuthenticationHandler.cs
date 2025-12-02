@@ -72,6 +72,12 @@ public class FirebaseAuthenticationHandler : AuthenticationHandler<Authenticatio
 
             var appUser = userEmail.User;
 
+            if (!appUser.IsActive)
+            {
+                Logger.LogWarning("Inactive user {Email} attempted to sign in.", normalizedEmail);
+                return AuthenticateResult.Fail("User is not authorized to access BookWise.");
+            }
+
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, appUser.UserId.ToString()),

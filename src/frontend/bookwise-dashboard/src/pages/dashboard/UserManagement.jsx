@@ -16,6 +16,7 @@ import {
   Spinner,
   IconButton,
   Alert,
+  Switch,
 } from "@material-tailwind/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import {
@@ -24,6 +25,8 @@ import {
   useInviteUserMutation,
   useRemoveUserEmailMutation,
   useUpdateUserRoleMutation,
+  useUpdateUserStatusMutation,
+  useUpdateUserDetailsMutation,
 } from "@/hooks/useAdminUsers";
 
 const USER_ROLES = ["Admin", "Accountant", "Viewer"];
@@ -32,7 +35,10 @@ export function UserManagement() {
   const { data, isLoading, isError, refetch } = useAdminUsers();
   const [inviteOpen, setInviteOpen] = useState(false);
   const [emailDialogUser, setEmailDialogUser] = useState(null);
+  const [detailsDialogUser, setDetailsDialogUser] = useState(null);
   const updateRoleMutation = useUpdateUserRoleMutation();
+  const updateStatusMutation = useUpdateUserStatusMutation();
+  const updateDetailsMutation = useUpdateUserDetailsMutation();
 
   useEffect(() => {
     if (!emailDialogUser || !data) {
@@ -80,7 +86,7 @@ export function UserManagement() {
               <table className="w-full table-auto text-left min-w-[960px]">
                 <thead>
                   <tr>
-                    {["Name", "Primary Email", "Additional Emails", "Role", "Actions"].map(header => (
+                    {["Name", "Primary Email", "Additional Emails", "Role", "Status", "Actions"].map(header => (
                       <th key={header} className="border-b border-blue-gray-50 py-3">
                         <Typography variant="small" className="font-semibold uppercase text-blue-gray-400">
                           {header}
@@ -135,6 +141,17 @@ export function UserManagement() {
                           </Select>
                         </td>
                         <td className={rowClass(idx, rows.length)}>
+                          <Switch
+                            id={`status-${user.userId}`}
+                            label={user.isActive ? "Active" : "Inactive"}
+                            checked={user.isActive}
+                            onChange={() =>
+                              updateStatusMutation.mutate({ userId: user.userId, isActive: !user.isActive })
+                            }
+                            disabled={updateStatusMutation.isPending}
+                          />
+                        </td>
+                        <td className={rowClass(idx, rows.length)}>
                           <Button
                             variant="text"
                             size="sm"
@@ -143,13 +160,21 @@ export function UserManagement() {
                           >
                             Manage emails
                           </Button>
+                          <Button
+                            variant="text"
+                            size="sm"
+                            color="blue"
+                            onClick={() => setDetailsDialogUser(user)}
+                          >
+                            Edit details
+                          </Button>
                         </td>
                       </tr>
                     );
                   })}
                   {rows.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="py-8 text-center text-blue-gray-400">
+                      <td colSpan={6} className="py-8 text-center text-blue-gray-400">
                         No users found.
                       </td>
                     </tr>
@@ -163,6 +188,7 @@ export function UserManagement() {
 
       <InviteUserDialog open={inviteOpen} onClose={() => setInviteOpen(false)} />
       <ManageEmailsDialog user={emailDialogUser} onClose={() => setEmailDialogUser(null)} />
+      <EditUserDialog user={detailsDialogUser} onClose={() => setDetailsDialogUser(null)} mutation={updateDetailsMutation} />
     </div>
   );
 }
@@ -316,6 +342,65 @@ function ManageEmailsDialog({ user, onClose }) {
       </DialogFooter>
     </Dialog>
   );
+}
+
+function EditUserDialog({ user, onClose, mutation }) {
+  const [form, setForm] = useState({ firstName: '', lastName: '' })
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (user) {
+      setForm({ firstName: user.firstName, lastName: user.lastName })
+      setError('')
+    }
+  }, [user])
+
+  if (!user) return null
+
+  const handleChange = e => {
+    const { name, value } = e.target
+    setForm(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async event => {
+    event.preventDefault()
+    setError('')
+    try {
+      await mutation.mutateAsync({
+        userId: user.userId,
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+      })
+      onClose()
+    } catch (err) {
+      setError(err.message || 'Unable to update user details.')
+    }
+  }
+
+  return (
+    <Dialog open={Boolean(user)} handler={onClose} size="sm">
+      <DialogHeader>Edit details for {user.firstName} {user.lastName}</DialogHeader>
+      <form onSubmit={handleSubmit}>
+        <DialogBody divider className="space-y-4">
+          <Input label="First Name" name="firstName" value={form.firstName} onChange={handleChange} required />
+          <Input label="Last Name" name="lastName" value={form.lastName} onChange={handleChange} required />
+          {error && (
+            <Alert color="red">
+              {error}
+            </Alert>
+          )}
+        </DialogBody>
+        <DialogFooter>
+          <Button variant="text" color="gray" onClick={onClose} className="mr-2">
+            Cancel
+          </Button>
+          <Button color="blue" type="submit" disabled={mutation.isPending}>
+            {mutation.isPending ? 'Saving...' : 'Save'}
+          </Button>
+        </DialogFooter>
+      </form>
+    </Dialog>
+  )
 }
 
 export default UserManagement;

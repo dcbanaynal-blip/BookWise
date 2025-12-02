@@ -116,6 +116,46 @@ public class AdminUsersController : ControllerBase
         }
     }
 
+    [HttpPut("{userId:guid}")]
+    public async Task<ActionResult<UserListItemResponse>> UpdateDetails(Guid userId, [FromBody] UpdateUserDetailsRequest request, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        try
+        {
+            var actorId = GetActorUserId();
+            var user = await _userManagementService.UpdateUserDetailsAsync(userId, request.FirstName, request.LastName, actorId, cancellationToken);
+            return Ok(MapUser(user));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: ex.Message);
+        }
+    }
+
+    [HttpPut("{userId:guid}/status")]
+    public async Task<ActionResult<UserListItemResponse>> UpdateStatus(Guid userId, [FromBody] UpdateUserStatusRequest request, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        try
+        {
+            var actorId = GetActorUserId();
+            var user = await _userManagementService.UpdateUserStatusAsync(userId, request.IsActive, actorId, cancellationToken);
+            return Ok(MapUser(user));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: ex.Message);
+        }
+    }
+
     private Guid GetActorUserId()
     {
         var userIdClaim = User.FindFirstValue("bookwise:userId") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -135,6 +175,7 @@ public class AdminUsersController : ControllerBase
             user.Role,
             user.CreatedAt,
             user.CreatedBy,
+            user.IsActive,
             user.Emails
                 .OrderBy(email => email.Email)
                 .Select(e => new UserEmailResponse(e.Id, e.Email, e.CreatedAt, e.CreatedBy))

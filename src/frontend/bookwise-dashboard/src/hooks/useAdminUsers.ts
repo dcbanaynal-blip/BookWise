@@ -6,6 +6,8 @@ import {
   inviteUser,
   removeUserEmail,
   updateUserRole,
+  updateUserStatus,
+  updateUserDetails,
   type InviteUserRequest,
 } from '@/config/api'
 
@@ -74,6 +76,36 @@ export function useRemoveUserEmailMutation() {
     mutationFn: async ({ userId, emailId }: { userId: string; emailId: string }) => {
       const token = await user!.getIdToken()
       return removeUserEmail(token, userId, emailId)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] })
+    },
+  })
+}
+
+export function useUpdateUserStatusMutation() {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+
+  return useMutation({
+    mutationFn: async ({ userId, isActive }: { userId: string; isActive: boolean }) => {
+      const token = await user!.getIdToken()
+      return updateUserStatus(token, userId, isActive)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] })
+    },
+  })
+}
+
+export function useUpdateUserDetailsMutation() {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+
+  return useMutation({
+    mutationFn: async ({ userId, firstName, lastName }: { userId: string; firstName: string; lastName: string }) => {
+      const token = await user!.getIdToken()
+      return updateUserDetails(token, userId, { firstName, lastName })
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] })

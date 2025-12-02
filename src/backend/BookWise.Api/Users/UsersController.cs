@@ -53,6 +53,7 @@ public class UsersController : ControllerBase
             primaryEmail,
             user.Role,
             user.Role == UserRoles.Admin,
+            user.IsActive,
             emails);
     }
 }

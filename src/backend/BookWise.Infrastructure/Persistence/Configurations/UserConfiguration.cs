@@ -37,6 +37,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.UpdatedBy)
             .IsRequired();
 
+        builder.Property(u => u.IsActive)
+            .HasDefaultValue(true)
+            .IsRequired();
+
         builder.HasOne(u => u.CreatedByUser)
             .WithMany(u => u.InvitedUsers)
             .HasForeignKey(u => u.CreatedBy)

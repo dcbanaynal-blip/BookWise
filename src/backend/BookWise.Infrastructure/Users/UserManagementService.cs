@@ -62,6 +62,8 @@ public class UserManagementService : IUserManagementService
             CreatedBy = actorUserId,
             UpdatedAt = now,
             UpdatedBy = actorUserId
+            ,
+            IsActive = true
         };
 
         foreach (var email in normalizedEmails)
@@ -158,6 +160,50 @@ public class UserManagementService : IUserManagementService
         await SaveChangesGuardingEmailConflicts(cancellationToken);
 
         _logger.LogInformation("Email {EmailId} removed from user {UserId} by {ActorId}", emailId, userId, actorUserId);
+    }
+
+    public async Task<User> UpdateUserStatusAsync(Guid userId, bool isActive, Guid actorUserId, CancellationToken cancellationToken = default)
+    {
+        var user = await _dbContext.Users.FindAsync([userId], cancellationToken);
+        if (user is null)
+        {
+            throw new InvalidOperationException("User not found.");
+        }
+
+        user.IsActive = isActive;
+        user.UpdatedAt = DateTime.UtcNow;
+        user.UpdatedBy = actorUserId;
+
+        await SaveChangesGuardingEmailConflicts(cancellationToken);
+        await _dbContext.Entry(user).Collection(u => u.Emails).LoadAsync(cancellationToken);
+
+        _logger.LogInformation("User {UserId} status set to {Status} by {ActorId}", userId, isActive, actorUserId);
+        return user;
+    }
+
+    public async Task<User> UpdateUserDetailsAsync(Guid userId, string firstName, string lastName, Guid actorUserId, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
+        {
+            throw new InvalidOperationException("First name and last name are required.");
+        }
+
+        var user = await _dbContext.Users.FindAsync([userId], cancellationToken);
+        if (user is null)
+        {
+            throw new InvalidOperationException("User not found.");
+        }
+
+        user.FirstName = firstName.Trim();
+        user.LastName = lastName.Trim();
+        user.UpdatedAt = DateTime.UtcNow;
+        user.UpdatedBy = actorUserId;
+
+        await SaveChangesGuardingEmailConflicts(cancellationToken);
+        await _dbContext.Entry(user).Collection(u => u.Emails).LoadAsync(cancellationToken);
+
+        _logger.LogInformation("User {UserId} name updated by {ActorId}", userId, actorUserId);
+        return user;
     }
 
     private static void ValidateRole(string role)

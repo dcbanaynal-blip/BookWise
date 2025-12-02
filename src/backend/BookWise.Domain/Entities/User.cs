@@ -10,6 +10,7 @@ public class User
     public Guid CreatedBy { get; set; }
     public DateTime UpdatedAt { get; set; }
     public Guid UpdatedBy { get; set; }
+    public bool IsActive { get; set; }
 
     public User CreatedByUser { get; set; } = null!;
     public ICollection<FinancialTransaction> Transactions { get; set; } = new List<FinancialTransaction>();

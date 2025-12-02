@@ -20,6 +20,8 @@
 CREATE TABLE Accounts (
     AccountId INT IDENTITY PRIMARY KEY,
     ExternalAccountNumber NVARCHAR(50) NOT NULL UNIQUE,
+    SegmentCode NVARCHAR(50) NOT NULL,
+    Level INT NOT NULL,
     Name NVARCHAR(120) NOT NULL,
     Type NVARCHAR(40) NOT NULL, -- Asset, Liability, Equity, Revenue, Expense
     ParentAccountId INT NULL REFERENCES Accounts(AccountId)
@@ -109,7 +111,7 @@ CREATE TABLE ReceiptLineItems (
 Role constants live at `src/backend/BookWise.Domain/Authorization/UserRoles.cs` so API policies and seeding logic can reference a single source of truth.
 
 ### Relationships and Constraints
-- `Accounts` self-references for chart-of-accounts hierarchy; enforce summary vs leaf accounts via triggers or computed flags. `ExternalAccountNumber` stays immutable/unique to mirror the legacy accounting system for synchronization.
+- `Accounts` self-references for chart-of-accounts hierarchy; `SegmentCode` + `Level` capture each segment so parentage is deterministic. Unique filtered indexes ensure `SegmentCode` is unique at each depth (including root), `ExternalAccountNumber` stays immutable for legacy sync, and triggers block updates that would break the hierarchy or allow leaf postings on summary nodes.
 - `Transactions` aggregate multiple `Entries`; enforce balanced transactions via trigger ensuring `SUM(Debit) = SUM(Credit)`.
 - `Receipts` optionally link to `Transactions`; allow orphan receipts until categorized.
 - `Users` drive audit fields (CreatedBy/UploadedBy) and role-based security; seed with the pre-authorized email allowlist referenced by Firebase Authentication.
@@ -138,7 +140,7 @@ public class Transaction
   - Composite unique constraints (e.g., `ReferenceNumber` scoped per year if needed).
   - Enum-to-string conversions for account type and receipt status.
   - Shadow properties (`CreatedAt`, `UpdatedAt`) with automatic timestamps.
-- Surface `ExternalAccountNumber` on the `Account` entity with `[Required]` and alternate key configuration so imports from the existing accounting app stay stable; expose API filters/selectors by this code for cross-system reconciliation.
+- Surface `ExternalAccountNumber`, `SegmentCode`, and `Level` on the `Account` entity with `[Required]` metadata plus alternate keys so imports from the existing accounting app stay stable while the hierarchy can be reconstructed quickly; expose API filters/selectors by these fields for cross-system reconciliation.
 - Enable lazy-loading proxies or explicit loading depending on performance profile; expose DTOs to the API to avoid over-posting.
 
 ## 4. Web API Endpoints (ASP.NET Core)

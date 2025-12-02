@@ -7,4 +7,5 @@ public sealed record UserListItemResponse(
     string Role,
     DateTime CreatedAt,
     Guid CreatedBy,
+    bool IsActive,
     IReadOnlyCollection<UserEmailResponse> Emails);

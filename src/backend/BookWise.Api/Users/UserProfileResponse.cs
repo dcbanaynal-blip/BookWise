@@ -10,4 +10,5 @@ public sealed record UserProfileResponse(
     string Email,
     string Role,
     bool IsAdmin,
+    bool IsActive,
     IReadOnlyCollection<string> Emails);

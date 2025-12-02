@@ -13,6 +13,7 @@ export type UserProfileResponse = {
   email: string
   role: string
   isAdmin: boolean
+  isActive: boolean
   emails: string[]
 }
 
@@ -39,6 +40,7 @@ export type UserListItemResponse = {
   role: string
   createdAt: string
   createdBy: string
+  isActive: boolean
   emails: Array<{
     id: string
     email: string
@@ -134,4 +136,38 @@ export async function removeUserEmail(
     const detail = await response.text()
     throw new Error(detail || 'Unable to remove email.')
   }
+}
+
+export async function updateUserDetails(
+  idToken: string,
+  userId: string,
+  details: { firstName: string; lastName: string },
+) {
+  const response = await fetch(`${API_BASE_URL}/api/admin/users/${userId}`, {
+    method: 'PUT',
+    headers: await authHeaders(idToken),
+    body: JSON.stringify(details),
+  })
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(detail || 'Unable to update user details.')
+  }
+  return (await response.json()) as UserListItemResponse
+}
+
+export async function updateUserStatus(
+  idToken: string,
+  userId: string,
+  isActive: boolean,
+) {
+  const response = await fetch(`${API_BASE_URL}/api/admin/users/${userId}/status`, {
+    method: 'PUT',
+    headers: await authHeaders(idToken),
+    body: JSON.stringify({ isActive }),
+  })
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(detail || 'Unable to update user status.')
+  }
+  return (await response.json()) as UserListItemResponse
 }

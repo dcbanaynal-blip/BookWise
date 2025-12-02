@@ -5,6 +5,8 @@ public class Account
     public int AccountId { get; set; }
     public string ExternalAccountNumber { get; set; } = null!;
     public string Name { get; set; } = null!;
+    public string SegmentCode { get; set; } = null!;
+    public int Level { get; set; }
     public AccountType Type { get; set; }
 
     public int? ParentAccountId { get; set; }

@@ -37,7 +37,8 @@ public static class BookWiseDbContextSeeder
                 CreatedAt = now,
                 CreatedBy = adminUserId,
                 UpdatedAt = now,
-                UpdatedBy = adminUserId
+                UpdatedBy = adminUserId,
+                IsActive = true
             };
 
             var allowlistedEmail = new UserEmail
