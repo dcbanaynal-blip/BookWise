@@ -6,7 +6,8 @@ import {
   signOut as firebaseSignOut,
   type User,
 } from 'firebase/auth'
-import { PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react'
+import type { PropsWithChildren } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { fetchCurrentUser, type UserProfileResponse } from '@/config/api'
 import { firebaseAuth } from '@/config/firebase'
 import { AuthContext } from './context'

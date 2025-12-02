@@ -187,18 +187,20 @@ export type AccountTreeResponse = AccountResponse & {
   children: AccountTreeResponse[]
 }
 
+export type AccountTypeValue = 0 | 1 | 2 | 3 | 4
+
 export type CreateAccountRequest = {
   externalAccountNumber: string
   name: string
   segmentCode: string
-  type: string
+  type: AccountTypeValue
   parentAccountId?: number | null
 }
 
 export type UpdateAccountRequest = {
   name: string
   segmentCode: string
-  type: string
+  type: AccountTypeValue
 }
 
 type GetAccountsOptions = {

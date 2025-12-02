@@ -8,7 +8,12 @@ public class EntryConfiguration : IEntityTypeConfiguration<Entry>
 {
     public void Configure(EntityTypeBuilder<Entry> builder)
     {
-        builder.ToTable("Entries");
+        builder.ToTable(
+            "Entries",
+            table =>
+            {
+                table.HasTrigger("TR_Entries_BlockNonLeafAccounts");
+            });
         builder.HasKey(e => e.EntryId);
 
         builder.Property(e => e.Debit)

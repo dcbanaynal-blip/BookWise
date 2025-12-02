@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import { type ReactNode } from 'react'
 import { render, screen } from '@testing-library/react'
 import { RequireRole } from '../RequireRole'
@@ -28,6 +29,7 @@ describe('RequireRole', () => {
           email: 'admin@example.com',
           role: 'Admin',
           isAdmin: true,
+          isActive: true,
           emails: [],
         },
         hasRole: () => true,
@@ -50,6 +52,7 @@ describe('RequireRole', () => {
           email: 'viewer@example.com',
           role: 'Viewer',
           isAdmin: false,
+          isActive: true,
           emails: [],
         },
       },

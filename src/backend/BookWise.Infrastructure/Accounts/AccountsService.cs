@@ -64,11 +64,10 @@ public sealed class AccountsService : IAccountsService
         {
             ExternalAccountNumber = normalizedExternal,
             Name = normalizedName,
-            SegmentCode = normalizedSegment,
-            Type = request.Type
+            SegmentCode = normalizedSegment
         };
 
-        await ApplyParentMetadataAsync(account, request.ParentAccountId, cancellationToken);
+        await ApplyParentMetadataAsync(account, request.ParentAccountId, request.Type, cancellationToken);
 
         _dbContext.Accounts.Add(account);
         await SaveChangesAsync(cancellationToken);
@@ -104,7 +103,8 @@ public sealed class AccountsService : IAccountsService
 
         account.Name = normalizedName;
         account.SegmentCode = normalizedSegment;
-        account.Type = request.Type;
+
+        await ApplyAccountTypeForUpdateAsync(account, request.Type, cancellationToken);
 
         await SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Account {AccountId} updated", accountId);
@@ -140,12 +140,13 @@ public sealed class AccountsService : IAccountsService
         _logger.LogInformation("Account {AccountId} deleted", accountId);
     }
 
-    private async Task ApplyParentMetadataAsync(Account account, int? parentAccountId, CancellationToken cancellationToken)
+    private async Task ApplyParentMetadataAsync(Account account, int? parentAccountId, AccountType requestedType, CancellationToken cancellationToken)
     {
         if (parentAccountId is null)
         {
             account.Level = 1;
             account.ParentAccountId = null;
+            account.Type = requestedType;
             return;
         }
 
@@ -160,6 +161,29 @@ public sealed class AccountsService : IAccountsService
 
         account.ParentAccountId = parent.AccountId;
         account.Level = parent.Level + 1;
+        account.Type = parent.Type;
+    }
+
+    private async Task ApplyAccountTypeForUpdateAsync(Account account, AccountType requestedType, CancellationToken cancellationToken)
+    {
+        if (account.ParentAccountId is null)
+        {
+            account.Type = requestedType;
+            return;
+        }
+
+        var parentType = await _dbContext.Accounts
+            .AsNoTracking()
+            .Where(a => a.AccountId == account.ParentAccountId.Value)
+            .Select(a => a.Type)
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (parentType == null)
+        {
+            throw new InvalidOperationException("Parent account not found.");
+        }
+
+        account.Type = parentType;
     }
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)

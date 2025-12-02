@@ -30,7 +30,16 @@ import {
   useUpdateAccountMutation,
 } from "@/hooks/useAccounts";
 
-const ACCOUNT_TYPES = ["Asset", "Liability", "Equity", "Revenue", "Expense"];
+const ACCOUNT_TYPE_OPTIONS = [
+  { label: "Asset", value: 0 },
+  { label: "Liability", value: 1 },
+  { label: "Equity", value: 2 },
+  { label: "Revenue", value: 3 },
+  { label: "Expense", value: 4 },
+];
+
+const DEFAULT_ACCOUNT_TYPE_LABEL = ACCOUNT_TYPE_OPTIONS[0].label;
+const ROOT_PARENT_LABEL = "No parent (root)";
 
 export function Accounts() {
   const [searchInput, setSearchInput] = useState("");
@@ -63,14 +72,6 @@ export function Accounts() {
     return flattenTree(data, collapsedMap);
   }, [data, isSearching, collapsedKey]);
 
-  const accountOptions = useMemo(() => {
-    if (!Array.isArray(treeQuery.data)) {
-      return [];
-    }
-
-    return flattenOptions(treeQuery.data);
-  }, [treeQuery.data]);
-
   const createAccountMutation = useCreateAccountMutation();
   const updateAccountMutation = useUpdateAccountMutation();
   const deleteAccountMutation = useDeleteAccountMutation();
@@ -80,6 +81,8 @@ export function Accounts() {
     mode: "create",
     account: null,
     parentAccountId: null,
+    parentAccountLabel: "",
+    parentAccountType: DEFAULT_ACCOUNT_TYPE_LABEL,
   });
   const [deleteTarget, setDeleteTarget] = useState(null);
 
@@ -90,12 +93,16 @@ export function Accounts() {
     }));
   };
 
-  const openCreateDialog = parentAccountId => {
+  const openCreateDialog = parentAccount => {
     setFormDialog({
       open: true,
       mode: "create",
       account: null,
-      parentAccountId: parentAccountId ?? null,
+      parentAccountId: parentAccount?.accountId ?? null,
+      parentAccountLabel: parentAccount
+        ? `${parentAccount.name} (${parentAccount.externalAccountNumber})`
+        : ROOT_PARENT_LABEL,
+      parentAccountType: parentAccount?.type ?? DEFAULT_ACCOUNT_TYPE_LABEL,
     });
   };
 
@@ -223,7 +230,7 @@ export function Accounts() {
                               variant="text"
                               size="sm"
                               color="green"
-                              onClick={() => openCreateDialog(row.accountId)}
+                              onClick={() => openCreateDialog(row)}
                               disabled={isSearching}
                               className="flex items-center gap-1"
                             >
@@ -272,12 +279,13 @@ export function Accounts() {
         open={formDialog.open}
         mode={formDialog.mode}
         account={formDialog.account}
-        parentAccountId={formDialog.parentAccountId}
-        onClose={closeFormDialog}
-        onCreate={handleCreateAccount}
-        onUpdate={handleUpdateAccount}
-        accountOptions={accountOptions}
-      />
+      parentAccountId={formDialog.parentAccountId}
+      parentAccountLabel={formDialog.parentAccountLabel}
+      parentAccountType={formDialog.parentAccountType}
+      onClose={closeFormDialog}
+      onCreate={handleCreateAccount}
+      onUpdate={handleUpdateAccount}
+    />
 
       <DeleteAccountDialog
         account={deleteTarget}
@@ -310,36 +318,28 @@ function flattenTree(nodes, collapsedMap, depth = 0, ancestorCollapsed = false, 
   return list;
 }
 
-function flattenOptions(nodes, depth = 0, list = []) {
-  nodes.forEach(node => {
-    list.push({
-      value: node.accountId,
-      label: `${"— ".repeat(depth)}${node.name} (${node.externalAccountNumber})`,
-    });
-    if (node.children?.length) {
-      flattenOptions(node.children, depth + 1, list);
-    }
-  });
-  return list;
-}
-
 function AccountFormDialog({
   open,
   mode,
   account,
   parentAccountId,
+  parentAccountLabel,
+  parentAccountType,
   onClose,
   onCreate,
   onUpdate,
-  accountOptions,
 }) {
   const isEdit = mode === "edit";
   const [form, setForm] = useState({
     externalAccountNumber: account?.externalAccountNumber ?? "",
     name: account?.name ?? "",
     segmentCode: account?.segmentCode ?? "",
-    type: account?.type ?? ACCOUNT_TYPES[0],
-    parentAccount: parentAccountId ?? null,
+    type:
+      account?.type && ACCOUNT_TYPE_OPTIONS.some(option => option.label === account.type)
+        ? account.type
+        : parentAccountType ?? DEFAULT_ACCOUNT_TYPE_LABEL,
+    parentAccountId: parentAccountId != null ? String(parentAccountId) : "",
+    parentAccountLabel: parentAccountLabel ?? ROOT_PARENT_LABEL,
   });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -352,10 +352,18 @@ function AccountFormDialog({
       externalAccountNumber: account?.externalAccountNumber ?? "",
       name: account?.name ?? "",
       segmentCode: account?.segmentCode ?? "",
-      type: account?.type ?? ACCOUNT_TYPES[0],
-      parentAccount: parentAccountId ?? null,
+      type:
+        account?.type && ACCOUNT_TYPE_OPTIONS.some(option => option.label === account.type)
+          ? account.type
+          : parentAccountType ??
+            (parentAccountId != null
+              ? accountOptions.find(option => String(option.value) === String(parentAccountId))?.type ??
+                DEFAULT_ACCOUNT_TYPE_LABEL
+              : DEFAULT_ACCOUNT_TYPE_LABEL),
+      parentAccountId: parentAccountId != null ? String(parentAccountId) : "",
+      parentAccountLabel: parentAccountLabel ?? ROOT_PARENT_LABEL,
     });
-  }, [account, parentAccountId, open, mode]);
+  }, [account, parentAccountId, parentAccountLabel, parentAccountType, open, mode]);
 
   const handleClose = () => {
     setError("");
@@ -367,12 +375,20 @@ function AccountFormDialog({
     setError("");
     setSubmitting(true);
 
+    const selectedType = ACCOUNT_TYPE_OPTIONS.find(option => option.label === form.type)?.value;
+
+    if (selectedType === undefined) {
+      setError("Select a valid account type.");
+      setSubmitting(false);
+      return;
+    }
+
     const payload = {
       externalAccountNumber: form.externalAccountNumber.trim(),
       name: form.name.trim(),
       segmentCode: form.segmentCode.trim(),
-      type: form.type,
-      parentAccountId: form.parentAccount ?? null,
+      type: selectedType,
+      parentAccountId: form.parentAccountId ? Number(form.parentAccountId) : null,
     };
 
     try {
@@ -384,13 +400,21 @@ function AccountFormDialog({
       }
 
       if (isEdit && account) {
-        await onUpdate(account.accountId, {
+        const updatePayload = {
           name: payload.name,
           segmentCode: payload.segmentCode,
           type: payload.type,
-        });
+        };
+        await onUpdate(account.accountId, updatePayload);
       } else {
-        await onCreate(payload);
+        const createPayload = {
+          externalAccountNumber: payload.externalAccountNumber,
+          name: payload.name,
+          segmentCode: payload.segmentCode,
+          type: payload.type,
+          parentAccountId: payload.parentAccountId,
+        };
+        await onCreate(createPayload);
       }
       setSubmitting(false);
       onClose();
@@ -412,7 +436,6 @@ function AccountFormDialog({
               crossOrigin={undefined}
               onChange={event => setForm(prev => ({ ...prev, externalAccountNumber: event.target.value }))}
               required
-              inputProps={{ maxLength: 50 }}
             />
           )}
           <Input
@@ -421,7 +444,6 @@ function AccountFormDialog({
             crossOrigin={undefined}
             onChange={event => setForm(prev => ({ ...prev, name: event.target.value }))}
             required
-            inputProps={{ maxLength: 120 }}
           />
           <Input
             label="Segment Code"
@@ -429,37 +451,26 @@ function AccountFormDialog({
             crossOrigin={undefined}
             onChange={event => setForm(prev => ({ ...prev, segmentCode: event.target.value }))}
             required
-            inputProps={{ maxLength: 50 }}
           />
           <Select
             label="Account Type"
             value={form.type}
+            disabled={Boolean(form.parentAccountId)}
             onChange={value => value && setForm(prev => ({ ...prev, type: value }))}
           >
-            {ACCOUNT_TYPES.map(type => (
-              <Option key={type} value={type}>
-                {type}
+            {ACCOUNT_TYPE_OPTIONS.map(option => (
+              <Option key={option.label} value={option.label}>
+                {option.label}
               </Option>
             ))}
           </Select>
           {!isEdit && (
-            <Select
-              label="Parent Account (optional)"
-              value={form.parentAccount !== null ? String(form.parentAccount) : ""}
-              onChange={value =>
-                setForm(prev => ({
-                  ...prev,
-                  parentAccount: value ? Number(value) : null,
-                }))
-              }
-            >
-              <Option value="">No parent (root)</Option>
-              {accountOptions.map(option => (
-                <Option key={option.value} value={String(option.value)}>
-                  {option.label}
-                </Option>
-              ))}
-            </Select>
+            <Input
+              label="Parent Account"
+              value={form.parentAccountLabel}
+              crossOrigin={undefined}
+              readOnly
+            />
           )}
           {error && (
             <Alert color="red">
@@ -557,7 +568,7 @@ function validateAccountPayload(payload, isEdit) {
     return "Segment code must be 50 characters or fewer.";
   }
 
-  if (!ACCOUNT_TYPES.includes(payload.type)) {
+  if (payload.type === undefined || payload.type === null) {
     return "Select a valid account type.";
   }
 

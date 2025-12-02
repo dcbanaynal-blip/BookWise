@@ -1,10 +1,9 @@
-import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'node:path'
+import type { UserConfig as VitestUserConfig } from 'vitest/config'
 
-// https://vite.dev/config/
-export default defineConfig({
-  plugins: [react()],
+const config: VitestUserConfig = {
+  plugins: [react()] as unknown as VitestUserConfig['plugins'],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -16,4 +15,7 @@ export default defineConfig({
     setupFiles: './src/setupTests.ts',
     css: false,
   },
-})
+}
+
+// https://vite.dev/config/
+export default config

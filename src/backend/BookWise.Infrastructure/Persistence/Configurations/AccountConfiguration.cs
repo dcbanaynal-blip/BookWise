@@ -9,7 +9,13 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
 {
     public void Configure(EntityTypeBuilder<Account> builder)
     {
-        builder.ToTable("Accounts");
+        builder.ToTable(
+            "Accounts",
+            table =>
+            {
+                table.HasTrigger("TR_Accounts_ValidateHierarchy");
+                table.HasTrigger("TR_Accounts_PreventExternalUpdates");
+            });
         builder.HasKey(a => a.AccountId);
 
         builder.Property(a => a.ExternalAccountNumber)
