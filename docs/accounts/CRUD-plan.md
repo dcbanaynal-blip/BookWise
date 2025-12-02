@@ -21,6 +21,6 @@ BookWise models accounts as a multi-level chart of accounts where each segment (
 - [x] Register navigation entry and route (e.g., `/accounts`) secured to Admin/Accountant roles
 
 ## Phase 4 – Validation, Docs, QA
-- [ ] Add client-side validation mirroring backend rules (segment uniqueness, required parent for non-root, level increments)
-- [ ] Document setup steps in README/onboarding (migrations, feature flags, environment variables)
-- [ ] Produce QA checklist covering hierarchy rendering, CRUD flows, and error scenarios (immutability violations, non-leaf deletes)
+- [x] Add client-side validation mirroring backend rules (segment uniqueness, required parent for non-root, level increments)
+- [x] Document setup steps in README/onboarding (migrations, feature flags, environment variables)
+- [x] Produce QA checklist covering hierarchy rendering, CRUD flows, and error scenarios (immutability violations, non-leaf deletes)

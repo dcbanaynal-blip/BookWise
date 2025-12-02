@@ -376,6 +376,13 @@ function AccountFormDialog({
     };
 
     try {
+      const validationMessage = validateAccountPayload(payload, isEdit);
+      if (validationMessage) {
+        setSubmitting(false);
+        setError(validationMessage);
+        return;
+      }
+
       if (isEdit && account) {
         await onUpdate(account.accountId, {
           name: payload.name,
@@ -405,6 +412,7 @@ function AccountFormDialog({
               crossOrigin={undefined}
               onChange={event => setForm(prev => ({ ...prev, externalAccountNumber: event.target.value }))}
               required
+              inputProps={{ maxLength: 50 }}
             />
           )}
           <Input
@@ -413,6 +421,7 @@ function AccountFormDialog({
             crossOrigin={undefined}
             onChange={event => setForm(prev => ({ ...prev, name: event.target.value }))}
             required
+            inputProps={{ maxLength: 120 }}
           />
           <Input
             label="Segment Code"
@@ -420,6 +429,7 @@ function AccountFormDialog({
             crossOrigin={undefined}
             onChange={event => setForm(prev => ({ ...prev, segmentCode: event.target.value }))}
             required
+            inputProps={{ maxLength: 50 }}
           />
           <Select
             label="Account Type"
@@ -519,6 +529,39 @@ function DeleteAccountDialog({ account, onClose, onDelete, mutation }) {
       </DialogFooter>
     </Dialog>
   );
+}
+
+function validateAccountPayload(payload, isEdit) {
+  if (payload.name.length > 120) {
+    return "Account name must be 120 characters or fewer.";
+  }
+
+  if (!payload.name) {
+    return "Account name is required.";
+  }
+
+  if (!isEdit) {
+    if (!payload.externalAccountNumber) {
+      return "External account number is required.";
+    }
+    if (payload.externalAccountNumber.length > 50) {
+      return "External account number must be 50 characters or fewer.";
+    }
+  }
+
+  if (!payload.segmentCode) {
+    return "Segment code is required.";
+  }
+
+  if (payload.segmentCode.length > 50) {
+    return "Segment code must be 50 characters or fewer.";
+  }
+
+  if (!ACCOUNT_TYPES.includes(payload.type)) {
+    return "Select a valid account type.";
+  }
+
+  return "";
 }
 
 export default Accounts;
