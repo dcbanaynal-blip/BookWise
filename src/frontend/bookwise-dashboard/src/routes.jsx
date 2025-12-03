@@ -8,7 +8,7 @@ import {
   UsersIcon,
 } from "@heroicons/react/24/solid";
 import { Navigate } from "react-router-dom";
-import { Home, Profile, Tables, Notifications, UserManagement, Accounts } from "@/pages/dashboard";
+import { Home, Profile, Tables, Notifications, UserManagement, Accounts, Receipts } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 import { RequireRole } from "@/components/RequireRole";
 
@@ -55,6 +55,20 @@ export const routes = [
             fallback={<Navigate to="/dashboard/home" replace />}
           >
             <Accounts />
+          </RequireRole>
+        ),
+      },
+      {
+        icon: <TableCellsIcon {...icon} />,
+        name: "receipts",
+        path: "/receipts",
+        allowedRoles: ["Admin", "Accountant", "Bookkeeper"],
+        element: (
+          <RequireRole
+            allowedRoles={["Admin", "Accountant", "Bookkeeper"]}
+            fallback={<Navigate to="/dashboard/home" replace />}
+          >
+            <Receipts />
           </RequireRole>
         ),
       },
