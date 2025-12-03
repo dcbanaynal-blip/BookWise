@@ -54,7 +54,8 @@ public sealed record ReceiptDetailResponse(
     bool? IsVatApplicable,
     string Status,
     string? OcrText,
-    IReadOnlyCollection<ReceiptLineItemResponse> LineItems);
+    IReadOnlyCollection<ReceiptLineItemResponse> LineItems,
+    IReadOnlyCollection<ReceiptDecisionResponse> Decisions);
 
 public sealed record ReceiptLineItemResponse(
     int ReceiptLineItemId,
@@ -63,3 +64,13 @@ public sealed record ReceiptLineItemResponse(
     string Description,
     decimal UnitPrice,
     decimal Amount);
+
+public sealed record ReceiptDecisionResponse(
+    int ReceiptDecisionId,
+    int? PurposeAccountId,
+    int? PostingAccountId,
+    bool? VatOverride,
+    decimal? TotalOverride,
+    string? Notes,
+    DateTime CreatedAt,
+    Guid CreatedBy);

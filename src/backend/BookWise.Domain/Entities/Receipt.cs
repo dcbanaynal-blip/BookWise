@@ -34,4 +34,5 @@ public class Receipt
 
     public User Uploader { get; set; } = null!;
     public ICollection<ReceiptLineItem> LineItems { get; set; } = new List<ReceiptLineItem>();
+    public ICollection<ReceiptDecision> Decisions { get; set; } = new List<ReceiptDecision>();
 }

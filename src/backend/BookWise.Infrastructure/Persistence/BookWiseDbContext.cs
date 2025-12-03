@@ -13,6 +13,7 @@ public class BookWiseDbContext(DbContextOptions<BookWiseDbContext> options) : Db
     public DbSet<Receipt> Receipts => Set<Receipt>();
     public DbSet<ReceiptLineItem> ReceiptLineItems => Set<ReceiptLineItem>();
     public DbSet<ReceiptProcessingJob> ReceiptProcessingJobs => Set<ReceiptProcessingJob>();
+    public DbSet<ReceiptDecision> ReceiptDecisions => Set<ReceiptDecision>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

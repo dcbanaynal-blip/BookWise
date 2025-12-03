@@ -107,12 +107,20 @@ public sealed class ReceiptsController : ControllerBase
 
     [HttpPost("{receiptId:int}/approve")]
     [Authorize(Roles = $"{UserRoles.Admin},{UserRoles.Accountant}")]
-    public async Task<ActionResult<ReceiptDetailResponse>> ApproveReceipt(int receiptId, CancellationToken cancellationToken)
+    public async Task<ActionResult<ReceiptDetailResponse>> ApproveReceipt(int receiptId, [FromBody] ApproveReceiptRequest request, CancellationToken cancellationToken)
     {
         try
         {
             var actorId = GetCurrentUserId();
-            await _receiptsService.ApproveReceiptAsync(receiptId, actorId, cancellationToken);
+            await _receiptsService.ApproveReceiptAsync(receiptId, new ApproveReceiptModel
+            {
+                ActorUserId = actorId,
+                PurposeAccountId = request.PurposeAccountId,
+                PostingAccountId = request.PostingAccountId,
+                VatOverride = request.VatOverride,
+                TotalOverride = request.TotalOverride,
+                Notes = request.Notes
+            }, cancellationToken);
             var refreshed = await _receiptsService.GetReceiptByIdAsync(receiptId, cancellationToken);
             if (refreshed is null)
             {
@@ -163,5 +171,14 @@ public sealed class ReceiptsController : ControllerBase
                     item.Unit,
                     item.Description,
                     item.UnitPrice,
-                    item.Amount)).ToArray());
+                    item.Amount)).ToArray(),
+            receipt.Decisions?.Select(decision => new ReceiptDecisionResponse(
+                decision.ReceiptDecisionId,
+                decision.PurposeAccountId,
+                decision.PostingAccountId,
+                decision.VatOverride,
+                decision.TotalOverride,
+                decision.Notes,
+                decision.CreatedAt,
+                decision.CreatedBy)).ToArray() ?? Array.Empty<ReceiptDecisionResponse>());
 }

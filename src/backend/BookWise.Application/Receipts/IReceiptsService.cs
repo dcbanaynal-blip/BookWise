@@ -11,7 +11,7 @@ public interface IReceiptsService
     Task<Receipt> CreateReceiptAsync(CreateReceiptModel model, CancellationToken cancellationToken);
     Task<IReadOnlyList<Receipt>> GetReceiptsAsync(int page, int pageSize, CancellationToken cancellationToken);
     Task<Receipt?> GetReceiptByIdAsync(int receiptId, CancellationToken cancellationToken);
-    Task<Receipt> ApproveReceiptAsync(int receiptId, Guid actorUserId, CancellationToken cancellationToken);
+    Task<Receipt> ApproveReceiptAsync(int receiptId, ApproveReceiptModel model, CancellationToken cancellationToken);
 }
 
 public sealed class CreateReceiptModel
@@ -30,4 +30,14 @@ public sealed class CreateReceiptModel
     public string? CustomerAddress { get; init; }
     public string? Notes { get; init; }
     public bool? IsVatApplicable { get; init; }
+}
+
+public sealed class ApproveReceiptModel
+{
+    public required Guid ActorUserId { get; init; }
+    public int? PurposeAccountId { get; init; }
+    public int? PostingAccountId { get; init; }
+    public bool? VatOverride { get; init; }
+    public decimal? TotalOverride { get; init; }
+    public string? Notes { get; init; }
 }

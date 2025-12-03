@@ -85,13 +85,15 @@ public sealed class ReceiptsService : IReceiptsService
         return _dbContext.Receipts
             .AsNoTracking()
             .Include(r => r.LineItems)
+            .Include(r => r.Decisions)
             .SingleOrDefaultAsync(r => r.ReceiptId == receiptId, cancellationToken);
     }
 
-    public async Task<Receipt> ApproveReceiptAsync(int receiptId, Guid actorUserId, CancellationToken cancellationToken)
+    public async Task<Receipt> ApproveReceiptAsync(int receiptId, ApproveReceiptModel model, CancellationToken cancellationToken)
     {
         var receipt = await _dbContext.Receipts
             .Include(r => r.Transaction)
+            .Include(r => r.Decisions)
             .SingleOrDefaultAsync(r => r.ReceiptId == receiptId, cancellationToken);
 
         if (receipt is null)
@@ -109,7 +111,7 @@ public sealed class ReceiptsService : IReceiptsService
             var now = DateTime.UtcNow;
             var transaction = new FinancialTransaction
             {
-                CreatedBy = actorUserId,
+                CreatedBy = model.ActorUserId,
                 CreatedAt = now,
                 TransactionDate = receipt.DocumentDate ?? now,
                 Description = receipt.Notes ?? $"Receipt #{receipt.ReceiptId}",
@@ -125,6 +127,18 @@ public sealed class ReceiptsService : IReceiptsService
             receipt.Transaction.TransactionDate = receipt.DocumentDate ?? receipt.Transaction.TransactionDate;
             receipt.Transaction.Description = receipt.Notes ?? receipt.Transaction.Description;
         }
+
+        receipt.Decisions.Add(new ReceiptDecision
+        {
+            ReceiptId = receipt.ReceiptId,
+            PurposeAccountId = model.PurposeAccountId,
+            PostingAccountId = model.PostingAccountId,
+            VatOverride = model.VatOverride,
+            TotalOverride = model.TotalOverride,
+            Notes = model.Notes,
+            CreatedBy = model.ActorUserId,
+            CreatedAt = DateTime.UtcNow
+        });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return receipt;
