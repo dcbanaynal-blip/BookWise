@@ -20,7 +20,7 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
 
         builder.Property(a => a.ExternalAccountNumber)
             .HasMaxLength(50)
-            .IsRequired();
+            .IsRequired(false);
 
         builder.Property(a => a.SegmentCode)
             .HasMaxLength(50)
@@ -29,7 +29,9 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
         builder.Property(a => a.Level)
             .IsRequired();
 
-        builder.HasIndex(a => a.ExternalAccountNumber).IsUnique();
+        builder.HasIndex(a => a.ExternalAccountNumber)
+            .IsUnique()
+            .HasFilter("[ExternalAccountNumber] IS NOT NULL");
         builder.HasIndex(a => a.ParentAccountId);
         builder.HasIndex(a => a.SegmentCode)
             .HasDatabaseName("IX_Accounts_RootSegmentCode")

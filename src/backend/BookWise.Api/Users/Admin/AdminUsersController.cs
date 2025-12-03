@@ -9,7 +9,7 @@ namespace BookWise.Api.Users.Admin;
 
 [ApiController]
 [Route("api/admin/users")]
-[Authorize(Roles = UserRoles.Admin)]
+[Authorize(Roles = $"{UserRoles.Admin},{UserRoles.Accountant}")]
 public class AdminUsersController : ControllerBase
 {
     private readonly IUserManagementService _userManagementService;

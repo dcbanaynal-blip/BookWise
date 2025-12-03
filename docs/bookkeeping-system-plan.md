@@ -105,7 +105,8 @@ CREATE TABLE ReceiptLineItems (
 ### User Roles
 
 - `Admin` – full access. Can invite/manage users, configure accounts, approve entries, and adjust system settings.
-- `Accountant` – day-to-day bookkeeping. Can create/edit transactions, upload receipts, and run financial reports but cannot manage platform configuration or invite new users.
+- `Accountant` – supervisory controller. Reviews Bookkeeper postings, manages the chart of accounts, and now shares user-management responsibilities with Admin.
+- `Bookkeeper` – operational preparer. Scans/uploads invoices, reviews the accounts involved in each transaction, and posts entries for Accountant review.
 - `Viewer` – read-only access. Can review dashboards, drill into transactions/receipts, and export reports without modifying data.
 
 Role constants live at `src/backend/BookWise.Domain/Authorization/UserRoles.cs` so API policies and seeding logic can reference a single source of truth.
@@ -211,15 +212,24 @@ App
 - Use regex patterns for tax, tips, invoice IDs; fallback to ML classifier trained on historical receipts.
 - Present suggested transaction mapping in UI; allow user override to feed feedback loop.
 
-## 7. Security and Validation
+## 7. Invoice-to-Entry Flow
+
+1. **Capture & Upload** – Users scan or photograph invoices/receipts and upload them via the Receipts UI. Records are saved with `TransactionId = NULL` so source documents exist even before categorization.
+2. **OCR Processing** – Uploads trigger OCR jobs (Tesseract or Textract). The pipeline normalizes the image, extracts header/line data, stores OCR text/confidence, and updates the receipt status (`Pending`, `Processed`, `Needs Review`).
+3. **Review & Categorization** – Accountants review the processed data submitted by Bookkeepers, confirm or adjust the OCR fields, and pick the leaf account (Posting Entity). Auto-categorization suggestions can prefill selections but users retain control.
+4. **Transaction Creation/Linking** – From the review screen an accountant either creates a new transaction prepopulated with receipt totals/dates or links the receipt to an existing draft transaction. A transaction can reference many receipts; each receipt ultimately links to only one transaction.
+5. **Double-Entry Completion** – The user finishes the debit/credit entries (Account Purpose + Posting Entity) so the transaction balances, then posts it. Posting locks the receipts to the finalized entries.
+6. **Audit & Retrieval** – Reports and ledgers can drill down from any transaction/entry to its linked receipts for supporting evidence. Unassigned receipts remain flagged until attached to a transaction.
+
+## 8. Security and Validation
 
 - **Input Validation**: FluentValidation or .NET data annotations on DTOs; server-side checks for amount balance, valid dates, allowed MIME types.
 - **Authentication**: Firebase Authentication handles user sign-in; only pre-authorized emails seeded in the `Users`/`UserEmails` tables may complete onboarding. The API now enforces this allowlist by rejecting any verified Firebase token whose email is not present in `UserEmails`. On startup the database seeds an initial `Admin` account for `dcbanaynal@fadi.com.ph` so environments immediately have a privileged operator.
-- **Role-Based Access Control**: Custom authorization policies leverage Users/roles once Firebase tokens are validated; enforce roles like `Admin`, `Accountant`, `Viewer` for posting entries, running reports, or viewing receipts.
+- **Role-Based Access Control**: Custom authorization policies leverage Users/roles once Firebase tokens are validated; enforce roles like `Admin`, `Accountant`, `Bookkeeper`, `Viewer` for posting entries, running reports, or viewing receipts.
 - **Data Integrity**: Database constraints (FKs, CHECKs), transaction scopes for multi-table mutations, background job retries with idempotency keys.
 - **Secrets & Compliance**: Store connection strings/keys in Azure Key Vault or user secrets; enforce TLS and encrypt receipt binaries at rest through SQL Server Transparent Data Encryption or column-level encryption.
 
-## 8. Deployment Plan
+## 9. Deployment Plan
 
 - **Local Development**:
   - VSCode + Codex extensions; Docker containers for SQL Server, Web API, React dev server.

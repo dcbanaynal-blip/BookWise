@@ -31,6 +31,10 @@ public sealed class AccountsService : IAccountsService
         return await _dbContext.Accounts
             .AsNoTracking()
             .Include(a => a.Children)
+            .Include(a => a.ParentAccount)
+                .ThenInclude(p => p!.ParentAccount)
+                    .ThenInclude(p => p!.ParentAccount)
+                        .ThenInclude(p => p!.ParentAccount)
             .SingleOrDefaultAsync(a => a.AccountId == accountId, cancellationToken);
     }
 
@@ -41,14 +45,9 @@ public sealed class AccountsService : IAccountsService
             throw new ArgumentNullException(nameof(request));
         }
 
-        var normalizedExternal = Normalize(request.ExternalAccountNumber);
+        var normalizedExternal = NormalizeOptional(request.ExternalAccountNumber);
         var normalizedName = Normalize(request.Name);
         var normalizedSegment = Normalize(request.SegmentCode);
-
-        if (string.IsNullOrWhiteSpace(normalizedExternal))
-        {
-            throw new InvalidOperationException("External account number is required.");
-        }
 
         if (string.IsNullOrWhiteSpace(normalizedName))
         {
@@ -175,15 +174,15 @@ public sealed class AccountsService : IAccountsService
         var parentType = await _dbContext.Accounts
             .AsNoTracking()
             .Where(a => a.AccountId == account.ParentAccountId.Value)
-            .Select(a => a.Type)
+            .Select(a => (AccountType?)a.Type)
             .SingleOrDefaultAsync(cancellationToken);
 
-        if (parentType == null)
+        if (parentType is null)
         {
             throw new InvalidOperationException("Parent account not found.");
         }
 
-        account.Type = parentType;
+        account.Type = parentType.Value;
     }
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
@@ -226,4 +225,10 @@ public sealed class AccountsService : IAccountsService
     }
 
     private static string Normalize(string? value) => value?.Trim() ?? string.Empty;
+
+    private static string? NormalizeOptional(string? value)
+    {
+        var trimmed = value?.Trim();
+        return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
+    }
 }

@@ -31,15 +31,20 @@ public class AccountsController : ControllerBase
 
         var filtered = FilterAccounts(accounts, search);
 
+        var fullSegmentMap = BuildFullSegmentMap(filtered);
+
         if (includeTree)
         {
-            var tree = BuildTree(filtered);
+            var tree = BuildTree(filtered, fullSegmentMap);
             return Ok(tree);
         }
 
         var hasChildrenMap = BuildHasChildrenMap(filtered);
         var response = filtered
-            .Select(account => MapAccount(account, hasChildrenMap.TryGetValue(account.AccountId, out var hasChildren) && hasChildren))
+            .Select(account => MapAccount(
+                account,
+                hasChildrenMap.TryGetValue(account.AccountId, out var hasChildren) && hasChildren,
+                fullSegmentMap.GetValueOrDefault(account.AccountId, account.SegmentCode)))
             .ToArray();
 
         return Ok(response);
@@ -54,8 +59,9 @@ public class AccountsController : ControllerBase
             return NotFound();
         }
 
+        var fullSegment = BuildFullSegmentForAccount(account);
         var hasChildren = account.Children?.Count > 0;
-        return Ok(MapAccount(account, hasChildren));
+        return Ok(MapAccount(account, hasChildren, fullSegment));
     }
 
     [HttpPost]
@@ -78,7 +84,12 @@ public class AccountsController : ControllerBase
                     request.ParentAccountId),
                 cancellationToken);
 
-            var response = MapAccount(account, false);
+            var hydrated = await _accountsService.GetAccountByIdAsync(account.AccountId, cancellationToken) ?? account;
+            var fullSegment = hydrated.ParentAccount is null
+                ? hydrated.SegmentCode
+                : BuildFullSegmentForAccount(hydrated);
+
+            var response = MapAccount(hydrated, hydrated.Children?.Count > 0, fullSegment);
             return CreatedAtAction(nameof(GetAccount), new { accountId = account.AccountId }, response);
         }
         catch (InvalidOperationException ex)
@@ -109,7 +120,8 @@ public class AccountsController : ControllerBase
                 return NotFound();
             }
 
-            return Ok(MapAccount(updatedAccount, updatedAccount.Children?.Count > 0));
+            var fullSegment = BuildFullSegmentForAccount(updatedAccount);
+            return Ok(MapAccount(updatedAccount, updatedAccount.Children?.Count > 0, fullSegment));
         }
         catch (InvalidOperationException ex)
         {
@@ -132,18 +144,19 @@ public class AccountsController : ControllerBase
         }
     }
 
-    private static AccountResponse MapAccount(Account account, bool hasChildren) =>
+    private static AccountResponse MapAccount(Account account, bool hasChildren, string fullSegment) =>
         new(
             account.AccountId,
             account.ExternalAccountNumber,
             account.Name,
             account.SegmentCode,
+            fullSegment,
             account.Level,
             account.Type.ToString(),
             account.ParentAccountId,
             hasChildren);
 
-    private static IReadOnlyCollection<AccountTreeResponse> BuildTree(IEnumerable<Account> accounts)
+    private static IReadOnlyCollection<AccountTreeResponse> BuildTree(IEnumerable<Account> accounts, IReadOnlyDictionary<int, string> fullSegmentMap)
     {
         var lookup = accounts.ToLookup(a => a.ParentAccountId);
 
@@ -158,6 +171,7 @@ public class AccountsController : ControllerBase
                         a.ExternalAccountNumber,
                         a.Name,
                         a.SegmentCode,
+                        fullSegmentMap.GetValueOrDefault(a.AccountId, a.SegmentCode),
                         a.Level,
                         a.Type.ToString(),
                         a.ParentAccountId,
@@ -191,5 +205,46 @@ public class AccountsController : ControllerBase
                 a.ExternalAccountNumber.Contains(term, StringComparison.OrdinalIgnoreCase) ||
                 a.SegmentCode.Contains(term, StringComparison.OrdinalIgnoreCase))
             .ToList();
+    }
+
+    private static IReadOnlyDictionary<int, string> BuildFullSegmentMap(IEnumerable<Account> accounts)
+    {
+        var lookup = accounts.ToLookup(a => a.ParentAccountId);
+        var result = new Dictionary<int, string>();
+
+        void Assign(Account account, string? parentSegment)
+        {
+            var fullSegment = string.IsNullOrEmpty(parentSegment)
+                ? account.SegmentCode
+                : $"{parentSegment}-{account.SegmentCode}";
+
+            result[account.AccountId] = fullSegment;
+
+            foreach (var child in lookup[account.AccountId])
+            {
+                Assign(child, fullSegment);
+            }
+        }
+
+        foreach (var root in lookup[null])
+        {
+            Assign(root, null);
+        }
+
+        return result;
+    }
+
+    private static string BuildFullSegmentForAccount(Account account)
+    {
+        var segments = new List<string>();
+        var current = account;
+
+        while (current is not null)
+        {
+            segments.Insert(0, current.SegmentCode);
+            current = current.ParentAccount;
+        }
+
+        return string.Join('-', segments);
     }
 }

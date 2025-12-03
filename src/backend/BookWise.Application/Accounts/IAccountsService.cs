@@ -16,7 +16,7 @@ public interface IAccountsService
 }
 
 public sealed record CreateAccountModel(
-    string ExternalAccountNumber,
+    string? ExternalAccountNumber,
     string Name,
     string SegmentCode,
     AccountType Type,

@@ -36,8 +36,8 @@
    ```
 
 ## Roles & Access
-- Only `Admin` and `Accountant` roles can access `/dashboard/accounts`
-- Use the User Management page (Admin only) to promote/demote roles
+- All authenticated roles can view `/dashboard/accounts`, but only `Admin` and `Accountant` can create, edit, or delete accounts.
+- Use the User Management page (Admin or Accountant) to promote/demote roles
 - Accounts obey hierarchy rules enforced in the database; any imported data must provide `ExternalAccountNumber`, `SegmentCode`, and `Level`
 
 ## Verification Checklist

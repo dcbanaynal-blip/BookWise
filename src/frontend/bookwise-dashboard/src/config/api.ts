@@ -174,9 +174,10 @@ export async function updateUserStatus(
 
 export type AccountResponse = {
   accountId: number
-  externalAccountNumber: string
+  externalAccountNumber: string | null
   name: string
   segmentCode: string
+  fullSegmentCode: string
   level: number
   type: string
   parentAccountId: number | null
@@ -190,7 +191,7 @@ export type AccountTreeResponse = AccountResponse & {
 export type AccountTypeValue = 0 | 1 | 2 | 3 | 4
 
 export type CreateAccountRequest = {
-  externalAccountNumber: string
+  externalAccountNumber?: string | null
   name: string
   segmentCode: string
   type: AccountTypeValue

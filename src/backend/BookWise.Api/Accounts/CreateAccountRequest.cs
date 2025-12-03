@@ -5,9 +5,8 @@ namespace BookWise.Api.Accounts;
 
 public sealed class CreateAccountRequest
 {
-    [Required]
     [MaxLength(50)]
-    public string ExternalAccountNumber { get; init; } = string.Empty;
+    public string? ExternalAccountNumber { get; init; }
 
     [Required]
     [MaxLength(120)]

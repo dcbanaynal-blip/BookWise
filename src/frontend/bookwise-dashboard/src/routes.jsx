@@ -46,12 +46,12 @@ export const routes = [
       },
       {
         icon: <RectangleStackIcon {...icon} />,
-        name: "accounts",
+        name: "chart of accounts",
         path: "/accounts",
-        allowedRoles: ["Admin", "Accountant"],
+        allowedRoles: ["Admin", "Accountant", "Bookkeeper", "Viewer"],
         element: (
           <RequireRole
-            allowedRoles={["Admin", "Accountant"]}
+            allowedRoles={["Admin", "Accountant", "Bookkeeper", "Viewer"]}
             fallback={<Navigate to="/dashboard/home" replace />}
           >
             <Accounts />
@@ -62,10 +62,10 @@ export const routes = [
         icon: <UsersIcon {...icon} />,
         name: "user management",
         path: "/users",
-        requiresAdmin: true,
+        allowedRoles: ["Admin", "Accountant"],
         element: (
           <RequireRole
-            allowedRoles={["Admin"]}
+            allowedRoles={["Admin", "Accountant"]}
             fallback={<Navigate to="/dashboard/home" replace />}
           >
             <UserManagement />

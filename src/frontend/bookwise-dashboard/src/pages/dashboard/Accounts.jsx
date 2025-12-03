@@ -29,6 +29,7 @@ import {
   useDeleteAccountMutation,
   useUpdateAccountMutation,
 } from "@/hooks/useAccounts";
+import { useAuth } from "@/auth";
 
 const ACCOUNT_TYPE_OPTIONS = [
   { label: "Asset", value: 0 },
@@ -40,6 +41,7 @@ const ACCOUNT_TYPE_OPTIONS = [
 
 const DEFAULT_ACCOUNT_TYPE_LABEL = ACCOUNT_TYPE_OPTIONS[0].label;
 const ROOT_PARENT_LABEL = "No parent (root)";
+const LEVEL_LABELS = ["Category", "Department", "Account Purpose", "Posting Entity"];
 
 export function Accounts() {
   const [searchInput, setSearchInput] = useState("");
@@ -52,6 +54,8 @@ export function Accounts() {
   const isLoading = activeQuery.isLoading || (!isSearching && treeQuery.isLoading);
   const isError = activeQuery.isError;
   const refetch = activeQuery.refetch;
+  const { hasRole } = useAuth();
+  const canManageAccounts = hasRole("Admin", "Accountant");
 
   const [collapsedMap, setCollapsedMap] = useState({});
   const collapsedKey = JSON.stringify(collapsedMap);
@@ -129,7 +133,7 @@ export function Accounts() {
         <CardHeader floated={false} shadow={false} className="rounded-none flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <Typography variant="h5" color="blue-gray">
-              Accounts
+              Chart of Accounts
             </Typography>
             <Typography variant="small" color="gray" className="mt-1 font-normal">
               Manage the hierarchical chart of accounts used across BookWise.
@@ -142,10 +146,12 @@ export function Accounts() {
               crossOrigin={undefined}
               onChange={event => setSearchInput(event.target.value)}
             />
-            <Button color="blue" onClick={() => openCreateDialog(null)}>
-              <PlusIcon className="h-4 w-4 mr-2 inline" />
-              Add Root Account
-            </Button>
+            {canManageAccounts && (
+              <Button color="blue" onClick={() => openCreateDialog(null)}>
+                <PlusIcon className="h-4 w-4 mr-2 inline" />
+                Add Root Account
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardBody className="px-0">
@@ -174,7 +180,8 @@ export function Accounts() {
                 <table className="w-full table-auto min-w-[960px] text-left">
                   <thead>
                     <tr>
-                      {["Account", "External #", "Segment", "Level", "Type", "Actions"].map(header => (
+                      <th className="border-b border-blue-gray-50 py-3 w-16"></th>
+                      {["Account", "Full Code", "Segment", "Level", "Type", "Actions"].map(header => (
                         <th key={header} className="border-b border-blue-gray-50 py-3">
                           <Typography variant="small" className="font-semibold uppercase text-blue-gray-400">
                             {header}
@@ -186,9 +193,9 @@ export function Accounts() {
                   <tbody>
                     {rows.map((row, idx) => (
                       <tr key={row.accountId}>
-                        <td className={rowClass(idx, rows.length)}>
-                          <div className="flex items-center gap-2" style={{ paddingLeft: `${row.depth * 16}px` }}>
-                            {!isSearching && row.hasChildren && (
+                        <td className={`${rowClass(idx, rows.length)} w-16`}>
+                          <div className="flex items-center" style={{ paddingLeft: `${row.depth * 16}px` }}>
+                            {!isSearching && row.hasChildren ? (
                               <IconButton
                                 variant="text"
                                 color="blue-gray"
@@ -201,19 +208,23 @@ export function Accounts() {
                                   <ChevronDownIcon className="h-4 w-4" />
                                 )}
                               </IconButton>
+                            ) : (
+                              <span className="inline-block w-4 h-4" />
                             )}
-                            <div>
-                              <Typography variant="small" className="font-semibold text-blue-gray-800">
-                                {row.name}
-                              </Typography>
-                              <Typography variant="small" color="gray">
-                                {row.parentAccountId ? "Child account" : "Root account"}
-                              </Typography>
-                            </div>
                           </div>
                         </td>
                         <td className={rowClass(idx, rows.length)}>
-                          <Typography variant="small">{row.externalAccountNumber}</Typography>
+                          <div style={{ paddingLeft: `${row.depth * 12}px` }}>
+                            <Typography variant="small" className="font-semibold text-blue-gray-800">
+                              {row.name}
+                            </Typography>
+                            <Typography variant="small" color="gray">
+                              {LEVEL_LABELS[row.level - 1] ?? "Account"}
+                            </Typography>
+                          </div>
+                        </td>
+                        <td className={rowClass(idx, rows.length)}>
+                          <Typography variant="small">{row.fullSegmentCode}</Typography>
                         </td>
                         <td className={rowClass(idx, rows.length)}>
                           <Typography variant="small">{row.segmentCode}</Typography>
@@ -225,40 +236,46 @@ export function Accounts() {
                           <Typography variant="small">{row.type}</Typography>
                         </td>
                         <td className={`${rowClass(idx, rows.length)} whitespace-nowrap`}>
-                          <div className="flex flex-wrap gap-2">
-                            <Button
-                              variant="text"
-                              size="sm"
-                              color="green"
-                              onClick={() => openCreateDialog(row)}
-                              disabled={isSearching}
-                              className="flex items-center gap-1"
-                            >
-                              <PlusIcon className="h-4 w-4" />
-                              Child
-                            </Button>
-                            <Button
-                              variant="text"
-                              size="sm"
-                              color="blue"
-                              onClick={() => openEditDialog(row)}
-                              className="flex items-center gap-1"
-                            >
-                              <PencilSquareIcon className="h-4 w-4" />
-                              Edit
-                            </Button>
-                            <Button
-                              variant="text"
-                              size="sm"
-                              color="red"
-                              onClick={() => setDeleteTarget(row)}
-                              disabled={row.hasChildren}
-                              className="flex items-center gap-1"
-                            >
-                              <TrashIcon className="h-4 w-4" />
-                              Delete
-                            </Button>
-                          </div>
+                          {canManageAccounts ? (
+                            <div className="flex flex-wrap gap-2">
+                              <Button
+                                variant="text"
+                                size="sm"
+                                color="green"
+                                onClick={() => openCreateDialog(row)}
+                                disabled={isSearching}
+                                className="flex items-center gap-1"
+                              >
+                                <PlusIcon className="h-4 w-4" />
+                                Child
+                              </Button>
+                              <Button
+                                variant="text"
+                                size="sm"
+                                color="blue"
+                                onClick={() => openEditDialog(row)}
+                                className="flex items-center gap-1"
+                              >
+                                <PencilSquareIcon className="h-4 w-4" />
+                                Edit
+                              </Button>
+                              <Button
+                                variant="text"
+                                size="sm"
+                                color="red"
+                                onClick={() => setDeleteTarget(row)}
+                                disabled={row.hasChildren}
+                                className="flex items-center gap-1"
+                              >
+                                <TrashIcon className="h-4 w-4" />
+                                Delete
+                              </Button>
+                            </div>
+                          ) : (
+                            <Typography variant="small" color="gray">
+                              View only
+                            </Typography>
+                          )}
                           {row.hasChildren && (
                             <Typography variant="small" color="gray">
                               Contains sub-accounts
@@ -275,24 +292,28 @@ export function Accounts() {
         </CardBody>
       </Card>
 
-      <AccountFormDialog
-        open={formDialog.open}
-        mode={formDialog.mode}
-        account={formDialog.account}
-      parentAccountId={formDialog.parentAccountId}
-      parentAccountLabel={formDialog.parentAccountLabel}
-      parentAccountType={formDialog.parentAccountType}
-      onClose={closeFormDialog}
-      onCreate={handleCreateAccount}
-      onUpdate={handleUpdateAccount}
-    />
+      {canManageAccounts && (
+        <AccountFormDialog
+          open={formDialog.open}
+          mode={formDialog.mode}
+          account={formDialog.account}
+          parentAccountId={formDialog.parentAccountId}
+          parentAccountLabel={formDialog.parentAccountLabel}
+          parentAccountType={formDialog.parentAccountType}
+          onClose={closeFormDialog}
+          onCreate={handleCreateAccount}
+          onUpdate={handleUpdateAccount}
+        />
+      )}
 
-      <DeleteAccountDialog
-        account={deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        onDelete={handleDeleteAccount}
-        mutation={deleteAccountMutation}
-      />
+      {canManageAccounts && (
+        <DeleteAccountDialog
+          account={deleteTarget}
+          onClose={() => setDeleteTarget(null)}
+          onDelete={handleDeleteAccount}
+          mutation={deleteAccountMutation}
+        />
+      )}
     </div>
   );
 }
@@ -383,8 +404,9 @@ function AccountFormDialog({
       return;
     }
 
+    const trimmedExternal = form.externalAccountNumber?.trim() || "";
     const payload = {
-      externalAccountNumber: form.externalAccountNumber.trim(),
+      externalAccountNumber: trimmedExternal ? trimmedExternal : null,
       name: form.name.trim(),
       segmentCode: form.segmentCode.trim(),
       type: selectedType,
@@ -435,7 +457,6 @@ function AccountFormDialog({
               value={form.externalAccountNumber}
               crossOrigin={undefined}
               onChange={event => setForm(prev => ({ ...prev, externalAccountNumber: event.target.value }))}
-              required
             />
           )}
           <Input
@@ -551,13 +572,8 @@ function validateAccountPayload(payload, isEdit) {
     return "Account name is required.";
   }
 
-  if (!isEdit) {
-    if (!payload.externalAccountNumber) {
-      return "External account number is required.";
-    }
-    if (payload.externalAccountNumber.length > 50) {
-      return "External account number must be 50 characters or fewer.";
-    }
+  if (payload.externalAccountNumber && payload.externalAccountNumber.length > 50) {
+    return "External account number must be 50 characters or fewer.";
   }
 
   if (!payload.segmentCode) {

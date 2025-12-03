@@ -63,19 +63,14 @@ export function Sidenav({ brandImg, brandName, routes }) {
               </li>
             )}
             {pages
-              .filter(({ requiresAdmin, allowedRoles }) => {
-                if (requiresAdmin && !(profile?.role === "Admin" || profile?.isAdmin)) {
+              .filter(({ allowedRoles }) => {
+                if (!allowedRoles) {
+                  return true;
+                }
+                if (!profile) {
                   return false;
                 }
-
-                if (allowedRoles) {
-                  if (!profile) {
-                    return false;
-                  }
-                  return allowedRoles.some(role => role === profile.role || (role === "Admin" && profile.isAdmin));
-                }
-
-                return true;
+                return allowedRoles.some(role => role === profile.role || (role === "Admin" && profile.isAdmin));
               })
               .map(({ icon, name, path }) => (
               <li key={name}>

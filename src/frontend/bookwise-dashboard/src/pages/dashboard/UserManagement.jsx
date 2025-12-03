@@ -29,7 +29,8 @@ import {
   useUpdateUserDetailsMutation,
 } from "@/hooks/useAdminUsers";
 
-const USER_ROLES = ["Admin", "Accountant", "Viewer"];
+const USER_ROLES = ["Admin", "Accountant", "Bookkeeper", "Viewer"];
+const DEFAULT_ROLE = "Bookkeeper";
 
 export function UserManagement() {
   const { data, isLoading, isError, refetch } = useAdminUsers();
@@ -198,7 +199,7 @@ function rowClass(index, length) {
 }
 
 function InviteUserDialog({ open, onClose }) {
-  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", role: USER_ROLES[1] });
+  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", role: DEFAULT_ROLE });
   const [error, setError] = useState("");
   const inviteMutation = useInviteUserMutation();
 
@@ -216,7 +217,7 @@ function InviteUserDialog({ open, onClose }) {
         role: form.role,
         emails: [form.email.trim()],
       });
-      setForm({ firstName: "", lastName: "", email: "", role: USER_ROLES[1] });
+      setForm({ firstName: "", lastName: "", email: "", role: DEFAULT_ROLE });
       onClose();
     } catch (err) {
       setError(err.message || "Unable to invite user.");

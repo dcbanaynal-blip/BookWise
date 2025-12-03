@@ -34,6 +34,25 @@ export function DashboardNavbar() {
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
   const { user, signOut } = useAuth();
 
+  const formatLabel = (segment) => {
+    if (!segment) return "";
+    const map = {
+      dashboard: "Dashboard",
+      accounts: "Chart of Accounts",
+      "user-management": "User Management",
+      profile: "Profile",
+      tables: "Tables",
+      notifications: "Notifications",
+    };
+    if (map[segment]) return map[segment];
+    return segment
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
+  const layoutLabel = formatLabel(layout);
+  const pageLabel = formatLabel(page);
+
   return (
     <Navbar
       color={fixedNavbar ? "white" : "transparent"}

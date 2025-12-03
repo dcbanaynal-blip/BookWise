@@ -3,7 +3,7 @@
 1. **API & Domain Enhancements**
    - [x] 1.1 Define DTOs (request/response) for listing users, inviting new users, editing roles, and managing email addresses.
    - [x] 1.2 Add services/repositories in the backend to encapsulate allowlist operations (fetch, add, update, delete) with validation (unique email, existing roles).
-   - [x] 1.3 Expose admin-only endpoints under `/api/admin/users` with `[Authorize(Roles = UserRoles.Admin)]`.
+   - [x] 1.3 Expose privileged endpoints under `/api/admin/users` with `[Authorize(Roles = $"{UserRoles.Admin},{UserRoles.Accountant}")]`.
    - [x] 1.4 Introduce audit logging for user changes (creator/updater ids, timestamps) and return structured error messages for the UI.
 
 2. **Authentication & Authorization Integration**
@@ -16,7 +16,7 @@
    - [x] 3.2 Wrap the fetchers with React Query hook factories (`useUsersQuery`, `useInviteUserMutation`, etc.) for caching and optimistic updates.
 
 4. **UI/UX Surfaces**
-   - [x] 4.1 Add a "User Management" route under the dashboard layout, visible only to admins (update sidebar nav).
+   - [x] 4.1 Add a "User Management" route under the dashboard layout, visible to admins and accountants (update sidebar nav).
    - [x] 4.2 Build the main grid/table:
        - [x] Columns: Name, Primary Email, Additional Emails, Role, Created/Updated info, Status/Actions.
        - [x] Row actions for editing role, managing emails, deactivating accounts.
