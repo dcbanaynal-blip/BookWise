@@ -9,7 +9,8 @@
       "BookWise.OcrWorker/1.0.0": {
         "dependencies": {
           "BookWise.Infrastructure": "1.0.0",
-          "Microsoft.Extensions.Hosting": "9.0.11"
+          "Microsoft.Extensions.Hosting": "9.0.11",
+          "Microsoft.Extensions.Hosting.WindowsServices": "9.0.11"
         },
         "runtime": {
           "BookWise.OcrWorker.dll": {}
@@ -504,6 +505,19 @@
           }
         }
       },
+      "Microsoft.Extensions.Hosting.WindowsServices/9.0.11": {
+        "dependencies": {
+          "Microsoft.Extensions.Hosting": "9.0.11",
+          "Microsoft.Extensions.Logging.EventLog": "9.0.11",
+          "System.ServiceProcess.ServiceController": "9.0.11"
+        },
+        "runtime": {
+          "lib/net9.0/Microsoft.Extensions.Hosting.WindowsServices.dll": {
+            "assemblyVersion": "9.0.0.11",
+            "fileVersion": "9.0.1125.51716"
+          }
+        }
+      },
       "Microsoft.Extensions.Logging/9.0.11": {
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection": "9.0.11",
@@ -924,6 +938,25 @@
         }
       },
       "System.Security.Principal.Windows/5.0.0": {},
+      "System.ServiceProcess.ServiceController/9.0.11": {
+        "dependencies": {
+          "System.Diagnostics.EventLog": "9.0.11"
+        },
+        "runtime": {
+          "lib/net9.0/System.ServiceProcess.ServiceController.dll": {
+            "assemblyVersion": "9.0.0.11",
+            "fileVersion": "9.0.1125.51716"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/win/lib/net9.0/System.ServiceProcess.ServiceController.dll": {
+            "rid": "win",
+            "assetType": "runtime",
+            "assemblyVersion": "9.0.0.11",
+            "fileVersion": "9.0.1125.51716"
+          }
+        }
+      },
       "System.Text.Encoding/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.1.0",
@@ -1254,6 +1287,13 @@
       "path": "microsoft.extensions.hosting.abstractions/9.0.11",
       "hashPath": "microsoft.extensions.hosting.abstractions.9.0.11.nupkg.sha512"
     },
+    "Microsoft.Extensions.Hosting.WindowsServices/9.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-DdiGhpOYAMmHveObsrB0zcfQrYEGDk0XwlTWTKmg54ZFOGx/4EbaO1KPzfpNQaU7KmqDJJgEkrRzlgxODjQneQ==",
+      "path": "microsoft.extensions.hosting.windowsservices/9.0.11",
+      "hashPath": "microsoft.extensions.hosting.windowsservices.9.0.11.nupkg.sha512"
+    },
     "Microsoft.Extensions.Logging/9.0.11": {
       "type": "package",
       "serviceable": true,
@@ -1540,6 +1580,13 @@
       "sha512": "sha512-t0MGLukB5WAVU9bO3MGzvlGnyJPgUlcwerXn1kzBRjwLKixT96XV0Uza41W49gVd8zEMFu9vQEFlv0IOrytICA==",
       "path": "system.security.principal.windows/5.0.0",
       "hashPath": "system.security.principal.windows.5.0.0.nupkg.sha512"
+    },
+    "System.ServiceProcess.ServiceController/9.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-dW+ZMX5jv5Px5XXcpIkiFjbU64IY8aQPjZDPRxyXohZUIIx/RvXz0EmjsyudUH9f52aM1/nfp0HFpEpszoVOYg==",
+      "path": "system.serviceprocess.servicecontroller/9.0.11",
+      "hashPath": "system.serviceprocess.servicecontroller.9.0.11.nupkg.sha512"
     },
     "System.Text.Encoding/4.3.0": {
       "type": "package",

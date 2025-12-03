@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "MRJY84KleX0=",
+  "dgSpecHash": "EuHO8+DsmhA=",
   "success": true,
   "projectFilePath": "C:\\gitrepo\\BookWise\\src\\backend\\BookWise.OcrWorker\\BookWise.OcrWorker.csproj",
   "expectedPackageFiles": [
@@ -38,6 +38,7 @@
     "C:\\Users\\Dexter\\.nuget\\packages\\microsoft.extensions.filesystemglobbing\\9.0.11\\microsoft.extensions.filesystemglobbing.9.0.11.nupkg.sha512",
     "C:\\Users\\Dexter\\.nuget\\packages\\microsoft.extensions.hosting\\9.0.11\\microsoft.extensions.hosting.9.0.11.nupkg.sha512",
     "C:\\Users\\Dexter\\.nuget\\packages\\microsoft.extensions.hosting.abstractions\\9.0.11\\microsoft.extensions.hosting.abstractions.9.0.11.nupkg.sha512",
+    "C:\\Users\\Dexter\\.nuget\\packages\\microsoft.extensions.hosting.windowsservices\\9.0.11\\microsoft.extensions.hosting.windowsservices.9.0.11.nupkg.sha512",
     "C:\\Users\\Dexter\\.nuget\\packages\\microsoft.extensions.logging\\9.0.11\\microsoft.extensions.logging.9.0.11.nupkg.sha512",
     "C:\\Users\\Dexter\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\9.0.11\\microsoft.extensions.logging.abstractions.9.0.11.nupkg.sha512",
     "C:\\Users\\Dexter\\.nuget\\packages\\microsoft.extensions.logging.configuration\\9.0.11\\microsoft.extensions.logging.configuration.9.0.11.nupkg.sha512",
@@ -79,6 +80,7 @@
     "C:\\Users\\Dexter\\.nuget\\packages\\system.security.cryptography.protecteddata\\6.0.0\\system.security.cryptography.protecteddata.6.0.0.nupkg.sha512",
     "C:\\Users\\Dexter\\.nuget\\packages\\system.security.permissions\\6.0.0\\system.security.permissions.6.0.0.nupkg.sha512",
     "C:\\Users\\Dexter\\.nuget\\packages\\system.security.principal.windows\\5.0.0\\system.security.principal.windows.5.0.0.nupkg.sha512",
+    "C:\\Users\\Dexter\\.nuget\\packages\\system.serviceprocess.servicecontroller\\9.0.11\\system.serviceprocess.servicecontroller.9.0.11.nupkg.sha512",
     "C:\\Users\\Dexter\\.nuget\\packages\\system.text.encoding\\4.3.0\\system.text.encoding.4.3.0.nupkg.sha512",
     "C:\\Users\\Dexter\\.nuget\\packages\\system.text.encoding.codepages\\6.0.0\\system.text.encoding.codepages.6.0.0.nupkg.sha512",
     "C:\\Users\\Dexter\\.nuget\\packages\\system.text.encodings.web\\6.0.0\\system.text.encodings.web.6.0.0.nupkg.sha512",

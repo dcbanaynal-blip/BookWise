@@ -1,4 +1,5 @@
 using BookWise.Infrastructure.Persistence;
+using BookWise.Infrastructure.Receipts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +13,8 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IReceiptImagePreprocessor, MagickReceiptImagePreprocessor>();
         services.AddSingleton<ITesseractEngineFactory, TesseractEngineFactory>();
         services.AddScoped<IReceiptOcrPipeline, ReceiptOcrPipeline>();
+        services.AddScoped<IAutoCategorizationRuleRefresher, AutoCategorizationRuleRefresher>();
+        services.AddScoped<IReceiptBacklogMonitor, ReceiptBacklogMonitor>();
         return services;
     }
 

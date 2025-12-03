@@ -85,6 +85,46 @@ namespace BookWise.Infrastructure.Persistence.Migrations
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
+            modelBuilder.Entity("BookWise.Domain.Entities.AccountSuggestionRule", b =>
+                {
+                    b.Property<int>("AccountSuggestionRuleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AccountSuggestionRuleId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.Property<int>("OccurrenceCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PostingAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PurposeAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SellerName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.HasKey("AccountSuggestionRuleId");
+
+                    b.HasIndex("SellerName", "PurposeAccountId", "PostingAccountId")
+                        .IsUnique();
+
+                    b.ToTable("AccountSuggestionRules", (string)null);
+                });
+
             modelBuilder.Entity("BookWise.Domain.Entities.Entry", b =>
                 {
                     b.Property<int>("EntryId")

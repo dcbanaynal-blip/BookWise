@@ -111,3 +111,6 @@ C:\gitrepo\BookWise\src\backend\BookWise.OcrWorker\bin\Debug\net9.0\runtimes\osx
 C:\gitrepo\BookWise\src\backend\BookWise.OcrWorker\bin\Debug\net9.0\runtimes\win-arm64\native\Magick.Native-Q8-arm64.dll
 C:\gitrepo\BookWise\src\backend\BookWise.OcrWorker\bin\Debug\net9.0\runtimes\win-x64\native\Magick.Native-Q8-x64.dll
 C:\gitrepo\BookWise\src\backend\BookWise.OcrWorker\bin\Debug\net9.0\runtimes\win-x86\native\Magick.Native-Q8-x86.dll
+C:\gitrepo\BookWise\src\backend\BookWise.OcrWorker\bin\Debug\net9.0\Microsoft.Extensions.Hosting.WindowsServices.dll
+C:\gitrepo\BookWise\src\backend\BookWise.OcrWorker\bin\Debug\net9.0\System.ServiceProcess.ServiceController.dll
+C:\gitrepo\BookWise\src\backend\BookWise.OcrWorker\bin\Debug\net9.0\runtimes\win\lib\net9.0\System.ServiceProcess.ServiceController.dll

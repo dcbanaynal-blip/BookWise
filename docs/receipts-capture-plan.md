@@ -14,22 +14,27 @@ Roadmap for delivering end-to-end receipt ingestion (upload → OCR → review �
 - [x] **1.4** Add FluentValidation + size/MIME vetting; enforce role access (Bookkeeper upload, Accountant review).
 - [x] **1.5** Seed initial OCR job queue integration (DB table or background command) consumed by worker.
 
-## Phase 2 – OCR Worker Enhancements
+## Phase 2 - OCR Worker Enhancements
 - [x] **2.1** Extend worker to poll queued receipts (new status column or queue table).
 - [x] **2.2** Normalize images (orientation, grayscale) before OCR run.
 - [x] **2.3** Extract header/line items, tax/VAT indicators, and populate `ReceiptLineItem` entities.
 - [x] **2.4** Capture confidence scores + raw OCR text for auditing.
 - [x] **2.5** Update worker logging/telemetry for success/failure tracking; add retry policy.
 
+## Phase 3 - Dashboard UI (Capture & Review)
+- [x] **3.1** Build "Receipts" page (sidebar entry, route guard).
+- [x] **3.2** Implement upload dialog with drag/drop, metadata entry (date, vendor, VAT flag override).
+- [x] **3.3** Add list/table view showing status (Pending, Processing, Needs Review, Completed) with filters/search.
+- [x] **3.4** Create review drawer/page to display OCR output, allow manual corrections, and mark ready for posting.
 - [x] **3.5** Provide controls to link receipt to existing transaction or start a new draft.
 - [x] **3.6** Surface suggested accounts from auto-categorization (read-only for now) with manual override inputs.
 
-## Phase 4 – Transaction Integration & Feedback Loop
+## Phase 4 - Transaction Integration & Feedback Loop
 - [x] **4.1** When a receipt is approved, generate or update the related transaction (pre-populated entry stubs).
 - [x] **4.2** Persist accept/override data (selected account, VAT flag, totals) to feed auto-categorization logic.
-- [x] **4.3** Expose APIs for fetching “unlinked receipts” when drafting transactions.
-- [ ] **4.4** Add background job (or use worker) to analyze overrides and promote recurring mappings into rule table.
-- [ ] **4.5** Document the feedback workflow and provide operational dashboards/alerts for stuck receipts.
+- [x] **4.3** Expose APIs for fetching "unlinked receipts" when drafting transactions.
+- [x] **4.4** Add background job (or use worker) to analyze overrides and promote recurring mappings into rule table.
+- [x] **4.5** Document the feedback workflow and provide operational dashboards/alerts for stuck receipts (`docs/receipts-feedback-operations.md`).
 
 ## Phase 5 – Hardening & Deployment
 - [ ] **5.1** Load/perf test upload/OCR flow (large receipts, concurrent uploads).
