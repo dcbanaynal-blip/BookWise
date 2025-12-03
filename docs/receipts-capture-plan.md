@@ -22,7 +22,7 @@ Roadmap for delivering end-to-end receipt ingestion (upload → OCR → review �
 - [x] **2.5** Update worker logging/telemetry for success/failure tracking; add retry policy.
 
 - [x] **3.5** Provide controls to link receipt to existing transaction or start a new draft.
-- [ ] **3.6** Surface suggested accounts from auto-categorization (read-only for now) with manual override inputs.
+- [x] **3.6** Surface suggested accounts from auto-categorization (read-only for now) with manual override inputs.
 
 ## Phase 4 – Transaction Integration & Feedback Loop
 - [ ] **4.1** When a receipt is approved, generate or update the related transaction (pre-populated entry stubs).

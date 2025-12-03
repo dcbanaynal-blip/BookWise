@@ -129,6 +129,20 @@ export function Receipts() {
               </Button>
             </div>
           </div>
+          <div className="space-y-2">
+            <Typography variant="small" color="gray">Suggested Account Purpose</Typography>
+            <Select label="Account Purpose" value="Travel">
+              <Option value="Travel">Travel · Dept Support</Option>
+              <Option value="Meals">Meals · Dept Support</Option>
+              <Option value="Supplies">Supplies · HQ</Option>
+            </Select>
+            <Typography variant="small" color="gray">Suggested Posting Entity</Typography>
+            <Select label="Posting Entity" value="Dexter">
+              <Option value="Dexter">Dexter C. Banaynal</Option>
+              <Option value="Finance-Team">Finance - Shared</Option>
+              <Option value="IT-Team">IT - Shared</Option>
+            </Select>
+          </div>
         </DialogBody>
         <DialogFooter>
           <Button variant="text" color="gray" onClick={() => setReviewTarget(null)} className="mr-2">
