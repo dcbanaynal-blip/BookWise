@@ -19,7 +19,7 @@ Roadmap for delivering end-to-end receipt ingestion (upload → OCR → review �
 - [x] **2.2** Normalize images (orientation, grayscale) before OCR run.
 - [x] **2.3** Extract header/line items, tax/VAT indicators, and populate `ReceiptLineItem` entities.
 - [x] **2.4** Capture confidence scores + raw OCR text for auditing.
-- [ ] **2.5** Update worker logging/telemetry for success/failure tracking; add retry policy.
+- [x] **2.5** Update worker logging/telemetry for success/failure tracking; add retry policy.
 
 ## Phase 3 – Dashboard UI (Capture & Review)
 - [ ] **3.1** Build “Receipts” page (sidebar entry, route guard).

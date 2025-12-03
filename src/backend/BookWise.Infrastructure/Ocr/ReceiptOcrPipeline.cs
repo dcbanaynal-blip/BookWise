@@ -74,6 +74,7 @@ public class ReceiptOcrPipeline : IReceiptOcrPipeline
                 job.CompletedAt = DateTime.UtcNow;
                 job.RetryCount += 1;
                 receipt.Status = ReceiptStatus.Failed;
+                job.ErrorMessage = ex.Message;
                 _logger.LogError(ex, "Failed preprocessing receipt {ReceiptId}", receipt.ReceiptId);
             }
         }
@@ -119,6 +120,7 @@ public class ReceiptOcrPipeline : IReceiptOcrPipeline
                 receipt.Status = ReceiptStatus.Failed;
                 job.Status = ReceiptProcessingStatus.Failed;
                 job.RetryCount += 1;
+                job.ErrorMessage = ex.Message;
                 _logger.LogError(ex, "OCR extraction failed for receipt {ReceiptId}", receipt.ReceiptId);
             }
         }
