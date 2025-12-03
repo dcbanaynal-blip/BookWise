@@ -13,10 +13,12 @@ namespace BookWise.Infrastructure.Receipts;
 public sealed class ReceiptsService : IReceiptsService
 {
     private readonly BookWiseDbContext _dbContext;
+    private readonly IReceiptFileStorage _fileStorage;
 
-    public ReceiptsService(BookWiseDbContext dbContext)
+    public ReceiptsService(BookWiseDbContext dbContext, IReceiptFileStorage fileStorage)
     {
         _dbContext = dbContext;
+        _fileStorage = fileStorage;
     }
 
     public async Task<Receipt> CreateReceiptAsync(CreateReceiptModel model, CancellationToken cancellationToken)
@@ -25,6 +27,10 @@ public sealed class ReceiptsService : IReceiptsService
         {
             throw new InvalidOperationException("Receipt file cannot be empty.");
         }
+
+        var storedFile = await _fileStorage.SaveAsync(
+            new ReceiptFilePayload(model.OriginalFileName, model.ContentType, model.FileBytes),
+            cancellationToken);
 
         var now = DateTime.UtcNow;
         var receipt = new Receipt
@@ -38,8 +44,8 @@ public sealed class ReceiptsService : IReceiptsService
             CustomerAddress = model.CustomerAddress,
             Notes = model.Notes,
             IsVatApplicable = model.IsVatApplicable ?? false,
-            MimeType = model.ContentType,
-            ImageData = model.FileBytes,
+            MimeType = storedFile.ContentType,
+            ImageData = storedFile.Data,
             UploadedBy = model.UploadedBy,
             UploadedAt = now,
             Status = ReceiptStatus.Pending,
