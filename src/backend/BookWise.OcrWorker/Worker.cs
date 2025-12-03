@@ -26,11 +26,15 @@ public class Worker : BackgroundService
             using var scope = _scopeFactory.CreateScope();
             var pipeline = scope.ServiceProvider.GetRequiredService<IReceiptOcrPipeline>();
 
-            var processed = await pipeline.PreprocessPendingReceiptsAsync(
+            var normalized = await pipeline.PreprocessPendingReceiptsAsync(
                 _options.Value.BatchSize,
                 stoppingToken);
 
-            if (processed == 0)
+            var extracted = await pipeline.ExtractReceiptContentAsync(
+                _options.Value.BatchSize,
+                stoppingToken);
+
+            if (normalized == 0 && extracted == 0)
             {
                 await Task.Delay(TimeSpan.FromSeconds(_options.Value.IdleDelaySeconds), stoppingToken);
             }

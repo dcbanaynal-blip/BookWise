@@ -17,7 +17,7 @@ Roadmap for delivering end-to-end receipt ingestion (upload → OCR → review �
 ## Phase 2 – OCR Worker Enhancements
 - [x] **2.1** Extend worker to poll queued receipts (new status column or queue table).
 - [x] **2.2** Normalize images (orientation, grayscale) before OCR run.
-- [ ] **2.3** Extract header/line items, tax/VAT indicators, and populate `ReceiptLineItem` entities.
+- [x] **2.3** Extract header/line items, tax/VAT indicators, and populate `ReceiptLineItem` entities.
 - [ ] **2.4** Capture confidence scores + raw OCR text for auditing.
 - [ ] **2.5** Update worker logging/telemetry for success/failure tracking; add retry policy.
 

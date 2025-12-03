@@ -23,6 +23,9 @@ public class ReceiptProcessingJobConfiguration : IEntityTypeConfiguration<Receip
         builder.Property(job => job.RetryCount)
             .HasDefaultValue(0);
 
+        builder.Property(job => job.ErrorMessage)
+            .HasMaxLength(1024);
+
         builder.HasOne(job => job.Receipt)
             .WithMany()
             .HasForeignKey(job => job.ReceiptId)

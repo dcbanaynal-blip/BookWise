@@ -10,6 +10,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddInfrastructureOcr(this IServiceCollection services)
     {
         services.AddTransient<IReceiptImagePreprocessor, MagickReceiptImagePreprocessor>();
+        services.AddSingleton<ITesseractEngineFactory, TesseractEngineFactory>();
         services.AddScoped<IReceiptOcrPipeline, ReceiptOcrPipeline>();
         return services;
     }

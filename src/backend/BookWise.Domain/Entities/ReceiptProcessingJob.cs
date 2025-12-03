@@ -9,6 +9,7 @@ public class ReceiptProcessingJob
     public DateTime? StartedAt { get; set; }
     public DateTime? CompletedAt { get; set; }
     public int RetryCount { get; set; }
+    public string? ErrorMessage { get; set; }
 
     public Receipt Receipt { get; set; } = null!;
 }

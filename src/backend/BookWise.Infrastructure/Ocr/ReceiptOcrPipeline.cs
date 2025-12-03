@@ -2,12 +2,14 @@ using BookWise.Domain.Entities;
 using BookWise.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Tesseract;
 
 namespace BookWise.Infrastructure.Ocr;
 
 public interface IReceiptOcrPipeline
 {
     Task<int> PreprocessPendingReceiptsAsync(int batchSize, CancellationToken cancellationToken = default);
+    Task<int> ExtractReceiptContentAsync(int batchSize, CancellationToken cancellationToken = default);
 }
 
 public class ReceiptOcrPipeline : IReceiptOcrPipeline
@@ -15,14 +17,17 @@ public class ReceiptOcrPipeline : IReceiptOcrPipeline
     private readonly BookWiseDbContext _dbContext;
     private readonly IReceiptImagePreprocessor _preprocessor;
     private readonly ILogger<ReceiptOcrPipeline> _logger;
+    private readonly ITesseractEngineFactory _engineFactory;
 
     public ReceiptOcrPipeline(
         BookWiseDbContext dbContext,
         IReceiptImagePreprocessor preprocessor,
+        ITesseractEngineFactory engineFactory,
         ILogger<ReceiptOcrPipeline> logger)
     {
         _dbContext = dbContext;
         _preprocessor = preprocessor;
+        _engineFactory = engineFactory;
         _logger = logger;
     }
 
@@ -70,6 +75,49 @@ public class ReceiptOcrPipeline : IReceiptOcrPipeline
                 job.RetryCount += 1;
                 receipt.Status = ReceiptStatus.Failed;
                 _logger.LogError(ex, "Failed preprocessing receipt {ReceiptId}", receipt.ReceiptId);
+            }
+        }
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return jobs.Count;
+    }
+
+    public async Task<int> ExtractReceiptContentAsync(int batchSize, CancellationToken cancellationToken = default)
+    {
+        var jobs = await _dbContext.ReceiptProcessingJobs
+            .AsTracking()
+            .Include(job => job.Receipt)
+            .Where(job => job.Status == ReceiptProcessingStatus.Completed && job.Receipt!.Status == ReceiptStatus.Processing)
+            .OrderBy(job => job.CompletedAt)
+            .Take(batchSize)
+            .ToListAsync(cancellationToken);
+
+        if (jobs.Count == 0)
+        {
+            return 0;
+        }
+
+        using var engine = _engineFactory.Create();
+
+        foreach (var job in jobs)
+        {
+            var receipt = job.Receipt!;
+            try
+            {
+                using var pix = Pix.LoadFromMemory(receipt.ImageData);
+                using var page = engine.Process(pix);
+                var text = page.GetText();
+
+                receipt.OcrText = text;
+                receipt.Status = ReceiptStatus.Completed;
+                job.Status = ReceiptProcessingStatus.Completed;
+            }
+            catch (Exception ex)
+            {
+                receipt.Status = ReceiptStatus.Failed;
+                job.Status = ReceiptProcessingStatus.Failed;
+                job.RetryCount += 1;
+                _logger.LogError(ex, "OCR extraction failed for receipt {ReceiptId}", receipt.ReceiptId);
             }
         }
 
