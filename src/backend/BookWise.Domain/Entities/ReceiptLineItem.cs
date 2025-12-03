@@ -9,6 +9,7 @@ public class ReceiptLineItem
     public string Description { get; set; } = null!;
     public decimal UnitPrice { get; set; }
     public decimal Amount { get; set; }
+    public double? Confidence { get; set; }
 
     public Receipt Receipt { get; set; } = null!;
 }

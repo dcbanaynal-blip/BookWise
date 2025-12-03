@@ -107,9 +107,11 @@ public class ReceiptOcrPipeline : IReceiptOcrPipeline
                 using var pix = Pix.LoadFromMemory(receipt.ImageData);
                 using var page = engine.Process(pix);
                 var text = page.GetText();
+                var confidence = page.GetMeanConfidence();
 
                 receipt.OcrText = text;
                 receipt.Status = ReceiptStatus.Completed;
+                receipt.OcrConfidence = confidence;
                 job.Status = ReceiptProcessingStatus.Completed;
             }
             catch (Exception ex)

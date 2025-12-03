@@ -29,6 +29,7 @@ public class Receipt
     public decimal? TotalAmount { get; set; }
     public string? CurrencyCode { get; set; }
     public string? OcrText { get; set; }
+    public double? OcrConfidence { get; set; }
     public ReceiptStatus Status { get; set; }
 
     public User Uploader { get; set; } = null!;
