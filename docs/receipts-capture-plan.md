@@ -5,7 +5,7 @@ Roadmap for delivering end-to-end receipt ingestion (upload → OCR → review �
 ---
 
 ## Phase 1 – API Foundations
-- [ ] **1.1** Define receipt DTOs (upload request/response, listing, detail, line items).
+- [x] **1.1** Define receipt DTOs (upload request/response, listing, detail, line items).
 - [ ] **1.2** Add `ReceiptsController` with endpoints:
   - [ ] **1.2.1** `POST /api/receipts` (multipart upload, persist metadata + binary, enqueue OCR job).
   - [ ] **1.2.2** `GET /api/receipts` with filters/pagination.
