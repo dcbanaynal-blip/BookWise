@@ -38,6 +38,16 @@ public sealed class ReceiptsController : ControllerBase
             return BadRequest("A non-empty receipt image is required.");
         }
 
+        if (file.Length > 25_000_000)
+        {
+            return BadRequest("Receipt file size exceeds 25MB limit.");
+        }
+
+        if (!ReceiptUploadRequestValidator.IsSupportedMime(file.ContentType))
+        {
+            return BadRequest("Unsupported file type. Please upload JPEG, PNG, or PDF receipts.");
+        }
+
         var uploaderId = GetCurrentUserId();
         await using var stream = new MemoryStream();
         await file.CopyToAsync(stream, cancellationToken);

@@ -1,6 +1,7 @@
 using System;
 using BookWise.Api.Authentication;
 using BookWise.Api.Extensions;
+using BookWise.Api.Receipts;
 using BookWise.Application.Accounts;
 using BookWise.Application.Users;
 using BookWise.Application.Receipts;
@@ -11,10 +12,15 @@ using BookWise.Infrastructure.Users;
 using BookWise.Infrastructure.Receipts;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddFluentValidationAutoValidation()
+    .AddFluentValidationClientsideAdapters();
+builder.Services.AddValidatorsFromAssemblyContaining<ReceiptUploadRequestValidator>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendCors", policy =>
