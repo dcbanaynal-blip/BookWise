@@ -24,7 +24,7 @@ Roadmap for delivering end-to-end receipt ingestion (upload → OCR → review �
 ## Phase 3 – Dashboard UI (Capture & Review)
 - [x] **3.1** Build “Receipts” page (sidebar entry, route guard).
 - [x] **3.2** Implement upload dialog with drag/drop, metadata entry (date, vendor, VAT flag override).
-- [ ] **3.3** Add list/table view showing status (Pending, Processing, Needs Review, Completed) with filters/search.
+- [x] **3.3** Add list/table view showing status (Pending, Processing, Needs Review, Completed) with filters/search.
 - [ ] **3.4** Create review drawer/page to display OCR output, allow manual corrections, and mark ready for posting.
 - [ ] **3.5** Provide controls to link receipt to existing transaction or start a new draft.
 - [ ] **3.6** Surface suggested accounts from auto-categorization (read-only for now) with manual override inputs.
