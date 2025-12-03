@@ -11,6 +11,7 @@ public interface IReceiptsService
     Task<Receipt> CreateReceiptAsync(CreateReceiptModel model, CancellationToken cancellationToken);
     Task<IReadOnlyList<Receipt>> GetReceiptsAsync(int page, int pageSize, CancellationToken cancellationToken);
     Task<Receipt?> GetReceiptByIdAsync(int receiptId, CancellationToken cancellationToken);
+    Task<Receipt> ApproveReceiptAsync(int receiptId, Guid actorUserId, CancellationToken cancellationToken);
 }
 
 public sealed class CreateReceiptModel

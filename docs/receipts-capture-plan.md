@@ -25,7 +25,7 @@ Roadmap for delivering end-to-end receipt ingestion (upload → OCR → review �
 - [x] **3.6** Surface suggested accounts from auto-categorization (read-only for now) with manual override inputs.
 
 ## Phase 4 – Transaction Integration & Feedback Loop
-- [ ] **4.1** When a receipt is approved, generate or update the related transaction (pre-populated entry stubs).
+- [x] **4.1** When a receipt is approved, generate or update the related transaction (pre-populated entry stubs).
 - [ ] **4.2** Persist accept/override data (selected account, VAT flag, totals) to feed auto-categorization logic.
 - [ ] **4.3** Expose APIs for fetching “unlinked receipts” when drafting transactions.
 - [ ] **4.4** Add background job (or use worker) to analyze overrides and promote recurring mappings into rule table.

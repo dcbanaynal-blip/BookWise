@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BookWise.Application.Receipts;
 using BookWise.Domain.Authorization;
+using BookWise.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -101,7 +102,44 @@ public sealed class ReceiptsController : ControllerBase
             return NotFound();
         }
 
-        var response = new ReceiptDetailResponse(
+        return Ok(MapDetail(receipt));
+    }
+
+    [HttpPost("{receiptId:int}/approve")]
+    [Authorize(Roles = $"{UserRoles.Admin},{UserRoles.Accountant}")]
+    public async Task<ActionResult<ReceiptDetailResponse>> ApproveReceipt(int receiptId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var actorId = GetCurrentUserId();
+            await _receiptsService.ApproveReceiptAsync(receiptId, actorId, cancellationToken);
+            var refreshed = await _receiptsService.GetReceiptByIdAsync(receiptId, cancellationToken);
+            if (refreshed is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(MapDetail(refreshed));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: ex.Message);
+        }
+    }
+
+    private Guid GetCurrentUserId()
+    {
+        var userIdValue = User.FindFirstValue("bookwise:userId") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdValue, out var userId))
+        {
+            throw new InvalidOperationException("Authenticated user is missing identifier claim.");
+        }
+
+        return userId;
+    }
+
+    private static ReceiptDetailResponse MapDetail(Receipt receipt) =>
+        new(
             receipt.ReceiptId,
             receipt.SellerName,
             receipt.SellerTaxId,
@@ -126,18 +164,4 @@ public sealed class ReceiptsController : ControllerBase
                     item.Description,
                     item.UnitPrice,
                     item.Amount)).ToArray());
-
-        return Ok(response);
-    }
-
-    private Guid GetCurrentUserId()
-    {
-        var userIdValue = User.FindFirstValue("bookwise:userId") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (!Guid.TryParse(userIdValue, out var userId))
-        {
-            throw new InvalidOperationException("Authenticated user is missing identifier claim.");
-        }
-
-        return userId;
-    }
 }

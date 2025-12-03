@@ -87,4 +87,46 @@ public sealed class ReceiptsService : IReceiptsService
             .Include(r => r.LineItems)
             .SingleOrDefaultAsync(r => r.ReceiptId == receiptId, cancellationToken);
     }
+
+    public async Task<Receipt> ApproveReceiptAsync(int receiptId, Guid actorUserId, CancellationToken cancellationToken)
+    {
+        var receipt = await _dbContext.Receipts
+            .Include(r => r.Transaction)
+            .SingleOrDefaultAsync(r => r.ReceiptId == receiptId, cancellationToken);
+
+        if (receipt is null)
+        {
+            throw new InvalidOperationException($"Receipt {receiptId} was not found.");
+        }
+
+        if (receipt.Status != ReceiptStatus.Completed)
+        {
+            throw new InvalidOperationException("Receipt OCR must be completed before approval.");
+        }
+
+        if (receipt.Transaction is null)
+        {
+            var now = DateTime.UtcNow;
+            var transaction = new FinancialTransaction
+            {
+                CreatedBy = actorUserId,
+                CreatedAt = now,
+                TransactionDate = receipt.DocumentDate ?? now,
+                Description = receipt.Notes ?? $"Receipt #{receipt.ReceiptId}",
+                ReferenceNumber = $"RCPT-{receipt.ReceiptId:D6}",
+                Receipt = receipt
+            };
+
+            receipt.Transaction = transaction;
+            _dbContext.Transactions.Add(transaction);
+        }
+        else
+        {
+            receipt.Transaction.TransactionDate = receipt.DocumentDate ?? receipt.Transaction.TransactionDate;
+            receipt.Transaction.Description = receipt.Notes ?? receipt.Transaction.Description;
+        }
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return receipt;
+    }
 }
