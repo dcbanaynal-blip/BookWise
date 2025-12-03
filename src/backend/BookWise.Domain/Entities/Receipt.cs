@@ -25,6 +25,7 @@ public class Receipt
     public decimal? TaxAmount { get; set; }
     public decimal? DiscountAmount { get; set; }
     public decimal? WithholdingTaxAmount { get; set; }
+    public bool IsVatApplicable { get; set; }
     public decimal? TotalAmount { get; set; }
     public string? CurrencyCode { get; set; }
     public string? OcrText { get; set; }

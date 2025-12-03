@@ -71,6 +71,9 @@ public class ReceiptConfiguration : IEntityTypeConfiguration<Receipt>
         builder.Property(r => r.WithholdingTaxAmount)
             .HasColumnType("decimal(18,2)");
 
+        builder.Property(r => r.IsVatApplicable)
+            .HasDefaultValue(false);
+
         builder.Property(r => r.TotalAmount)
             .HasColumnType("decimal(18,2)");
 

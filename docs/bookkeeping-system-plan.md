@@ -211,6 +211,10 @@ App
 - NLP rules map extracted merchant, total, date to probable accounts.
 - Use regex patterns for tax, tips, invoice IDs; fallback to ML classifier trained on historical receipts.
 - Present suggested transaction mapping in UI; allow user override to feed feedback loop.
+- Feedback loop:
+  - Persist every accepted suggestion vs. user override (account, tax flag, amounts) alongside receipt metadata.
+  - Use those corrections to tune heuristics: update regex dictionaries, retrain the classifier, and surface confidence scores so low-confidence predictions automatically require review.
+  - When repeated overrides emerge (e.g., same merchant always maps to a specific department), promote them to explicit rules so future uploads auto-apply the learned mapping.
 
 ## 7. Invoice-to-Entry Flow
 
