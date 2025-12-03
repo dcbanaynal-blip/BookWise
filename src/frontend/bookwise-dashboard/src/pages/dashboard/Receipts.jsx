@@ -14,6 +14,9 @@ import {
   Select,
   Option,
   Alert,
+  Tabs,
+  TabsHeader,
+  Tab,
 } from "@material-tailwind/react";
 
 export function Receipts() {
@@ -27,6 +30,7 @@ export function Receipts() {
   });
   const [error, setError] = useState("");
   const [reviewTarget, setReviewTarget] = useState(null);
+  const [tab, setTab] = useState("all");
   const sampleReceipt = {
     receiptId: 1,
     notes: "Sample OCR extract...\nTotal: 123.45",
@@ -72,8 +76,18 @@ export function Receipts() {
           </Button>
         </CardHeader>
         <CardBody className="px-6 py-8">
+          <Tabs value={tab} className="w-full mb-4">
+            <TabsHeader>
+              <Tab value="all" onClick={() => setTab("all")}>
+                All receipts
+              </Tab>
+              <Tab value="unlinked" onClick={() => setTab("unlinked")}>
+                Unlinked only
+              </Tab>
+            </TabsHeader>
+          </Tabs>
           <Typography variant="small" color="blue-gray">
-            Phase 3 will add upload controls, processing indicators, and review tools here. For now, this page verifies the navigation flow for Admins, Accountants, and Bookkeepers.
+            Showing {tab === "all" ? "all receipts" : "only receipts not yet linked to a transaction"} (mock data).
           </Typography>
           <Button variant="text" color="blue" onClick={() => setReviewTarget(sampleReceipt)} className="mt-4">
             Preview Review Drawer

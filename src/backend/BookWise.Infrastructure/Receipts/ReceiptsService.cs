@@ -60,7 +60,7 @@ public sealed class ReceiptsService : IReceiptsService
         return receipt;
     }
 
-    public async Task<IReadOnlyList<Receipt>> GetReceiptsAsync(int page, int pageSize, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<Receipt>> GetReceiptsAsync(int page, int pageSize, bool unlinkedOnly, CancellationToken cancellationToken)
     {
         if (page <= 0)
         {
@@ -72,8 +72,14 @@ public sealed class ReceiptsService : IReceiptsService
             pageSize = 50;
         }
 
-        return await _dbContext.Receipts
-            .AsNoTracking()
+        var query = _dbContext.Receipts.AsNoTracking();
+
+        if (unlinkedOnly)
+        {
+            query = query.Where(r => r.TransactionId == null);
+        }
+
+        return await query
             .OrderByDescending(r => r.UploadedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)

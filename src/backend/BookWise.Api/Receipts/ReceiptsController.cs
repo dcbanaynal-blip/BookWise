@@ -76,9 +76,9 @@ public sealed class ReceiptsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyCollection<ReceiptListItemResponse>>> GetReceipts([FromQuery] int page = 1, [FromQuery] int pageSize = 50, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<IReadOnlyCollection<ReceiptListItemResponse>>> GetReceipts([FromQuery] ReceiptListOptions options, CancellationToken cancellationToken = default)
     {
-        var receipts = await _receiptsService.GetReceiptsAsync(page, pageSize, cancellationToken);
+        var receipts = await _receiptsService.GetReceiptsAsync(options.Page, options.PageSize, options.UnlinkedOnly, cancellationToken);
         var response = receipts
             .Select(r => new ReceiptListItemResponse(
                 r.ReceiptId,

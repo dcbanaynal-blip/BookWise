@@ -9,7 +9,7 @@ namespace BookWise.Application.Receipts;
 public interface IReceiptsService
 {
     Task<Receipt> CreateReceiptAsync(CreateReceiptModel model, CancellationToken cancellationToken);
-    Task<IReadOnlyList<Receipt>> GetReceiptsAsync(int page, int pageSize, CancellationToken cancellationToken);
+    Task<IReadOnlyList<Receipt>> GetReceiptsAsync(int page, int pageSize, bool unlinkedOnly, CancellationToken cancellationToken);
     Task<Receipt?> GetReceiptByIdAsync(int receiptId, CancellationToken cancellationToken);
     Task<Receipt> ApproveReceiptAsync(int receiptId, ApproveReceiptModel model, CancellationToken cancellationToken);
 }
