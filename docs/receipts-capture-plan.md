@@ -12,7 +12,7 @@ Roadmap for delivering end-to-end receipt ingestion (upload → OCR → review �
   - [x] **1.2.3** `GET /api/receipts/{id}` for detailed view (includes OCR text, line items, flags).
 - [x] **1.3** Implement file storage abstraction (SQL varbinary vs. blob storage) and wire to controller, ensuring invoice images are transmitted/stored as raw binary to preserve fidelity for OCR.
 - [x] **1.4** Add FluentValidation + size/MIME vetting; enforce role access (Bookkeeper upload, Accountant review).
-- [ ] **1.5** Seed initial OCR job queue integration (DB table or background command) consumed by worker.
+- [x] **1.5** Seed initial OCR job queue integration (DB table or background command) consumed by worker.
 
 ## Phase 2 – OCR Worker Enhancements
 - [ ] **2.1** Extend worker to poll queued receipts (new status column or queue table).

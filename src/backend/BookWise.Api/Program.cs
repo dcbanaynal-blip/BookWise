@@ -37,6 +37,7 @@ builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 builder.Services.AddScoped<IAccountsService, AccountsService>();
 builder.Services.AddScoped<IReceiptsService, ReceiptsService>();
 builder.Services.AddScoped<IReceiptFileStorage, DatabaseReceiptFileStorage>();
+builder.Services.AddScoped<IReceiptProcessingQueue, ReceiptProcessingQueue>();
 builder.Services.AddFirebaseAdmin(builder.Configuration, builder.Environment);
 builder.Services
     .AddAuthentication(FirebaseAuthenticationDefaults.AuthenticationScheme)

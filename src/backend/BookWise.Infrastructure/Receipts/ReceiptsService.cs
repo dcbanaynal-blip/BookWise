@@ -14,11 +14,13 @@ public sealed class ReceiptsService : IReceiptsService
 {
     private readonly BookWiseDbContext _dbContext;
     private readonly IReceiptFileStorage _fileStorage;
+    private readonly IReceiptProcessingQueue _processingQueue;
 
-    public ReceiptsService(BookWiseDbContext dbContext, IReceiptFileStorage fileStorage)
+    public ReceiptsService(BookWiseDbContext dbContext, IReceiptFileStorage fileStorage, IReceiptProcessingQueue processingQueue)
     {
         _dbContext = dbContext;
         _fileStorage = fileStorage;
+        _processingQueue = processingQueue;
     }
 
     public async Task<Receipt> CreateReceiptAsync(CreateReceiptModel model, CancellationToken cancellationToken)
@@ -54,6 +56,7 @@ public sealed class ReceiptsService : IReceiptsService
 
         _dbContext.Receipts.Add(receipt);
         await _dbContext.SaveChangesAsync(cancellationToken);
+        await _processingQueue.EnqueueAsync(receipt.ReceiptId, cancellationToken);
         return receipt;
     }
 
