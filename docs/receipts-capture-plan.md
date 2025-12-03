@@ -6,10 +6,10 @@ Roadmap for delivering end-to-end receipt ingestion (upload → OCR → review �
 
 ## Phase 1 – API Foundations
 - [x] **1.1** Define receipt DTOs (upload request/response, listing, detail, line items).
-- [ ] **1.2** Add `ReceiptsController` with endpoints:
-  - [ ] **1.2.1** `POST /api/receipts` (multipart upload, persist metadata + binary, enqueue OCR job).
-  - [ ] **1.2.2** `GET /api/receipts` with filters/pagination.
-  - [ ] **1.2.3** `GET /api/receipts/{id}` for detailed view (includes OCR text, line items, flags).
+- [x] **1.2** Add `ReceiptsController` with endpoints:
+  - [x] **1.2.1** `POST /api/receipts` (multipart upload, persist metadata + binary, enqueue OCR job).
+  - [x] **1.2.2** `GET /api/receipts` with filters/pagination.
+  - [x] **1.2.3** `GET /api/receipts/{id}` for detailed view (includes OCR text, line items, flags).
 - [ ] **1.3** Implement file storage abstraction (SQL varbinary vs. blob storage) and wire to controller, ensuring invoice images are transmitted/stored as raw binary to preserve fidelity for OCR.
 - [ ] **1.4** Add FluentValidation + size/MIME vetting; enforce role access (Bookkeeper upload, Accountant review).
 - [ ] **1.5** Seed initial OCR job queue integration (DB table or background command) consumed by worker.
