@@ -1,3 +1,5 @@
+using System;
+using System.Buffers;
 using ImageMagick;
 using Microsoft.Extensions.Logging;
 
@@ -33,7 +35,14 @@ public class MagickReceiptImagePreprocessor : IReceiptImagePreprocessor
         image.Sharpen();
         image.Format = MagickFormat.Png;
 
-        var optimized = image.ToByteArray();
+        using var collection = new MagickImageCollection();
+        collection.Add(image);
+        if (!collection[0].HasAlpha)
+        {
+            collection[0].Alpha(AlphaOption.Opaque);
+        }
+
+        var optimized = collection.ToByteArray();
         _logger.LogDebug("Preprocessed image to {Length} bytes", optimized.Length);
 
         return Task.FromResult(optimized);
