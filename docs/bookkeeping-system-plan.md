@@ -12,6 +12,7 @@
 - Receipt scanning (Tesseract.js locally or AWS Textract remotely) with auto-linking to transactions.
 - Interactive dashboards and drill-down reporting using Creative Tim React templates.
 - Role-aware Web API with validation, logging, and background OCR jobs.
+- Bookkeeper assignment workflow so whoever uploads a receipt owns it until they explicitly reassign large batches to another preparer.
 
 ## 2. Database Schema (Microsoft SQL Server)
 
@@ -106,7 +107,7 @@ CREATE TABLE ReceiptLineItems (
 
 - `Admin` – full access. Can invite/manage users, configure accounts, approve entries, and adjust system settings.
 - `Accountant` – supervisory controller. Reviews Bookkeeper postings, manages the chart of accounts, and now shares user-management responsibilities with Admin.
-- `Bookkeeper` – operational preparer. Scans/uploads invoices, reviews the accounts involved in each transaction, and posts entries for Accountant review.
+- `Bookkeeper` – operational preparer. Scans/uploads invoices, reviews the accounts involved in each transaction, and posts entries for Accountant review. The uploader owns a receipt through posting unless they use the reassignment workflow to hand off responsibility (audited in the ledger).
 - `Viewer` – read-only access. Can review dashboards, drill into transactions/receipts, and export reports without modifying data.
 
 Role constants live at `src/backend/BookWise.Domain/Authorization/UserRoles.cs` so API policies and seeding logic can reference a single source of truth.
@@ -115,6 +116,7 @@ Role constants live at `src/backend/BookWise.Domain/Authorization/UserRoles.cs` 
 - `Accounts` self-references for chart-of-accounts hierarchy; `SegmentCode` + `Level` capture each segment so parentage is deterministic. Unique filtered indexes ensure `SegmentCode` is unique at each depth (including root), `ExternalAccountNumber` stays immutable for legacy sync, and triggers block updates that would break the hierarchy or allow leaf postings on summary nodes.
 - `Transactions` aggregate multiple `Entries`; enforce balanced transactions via trigger ensuring `SUM(Debit) = SUM(Credit)`.
 - `Receipts` optionally link to `Transactions`; allow orphan receipts until categorized.
+- Future enhancement: add ownership columns (`AssignedBookkeeperId`, `ClaimedAt`, `LockedBy`) plus assignment history to support explicit hand-offs and conflict prevention.
 - `Users` drive audit fields (CreatedBy/UploadedBy) and role-based security; seed with the pre-authorized email allowlist referenced by Firebase Authentication.
 - Consider filtered indexes on `TransactionDate`, `Status`, and `AccountId` for reporting workloads.
 
@@ -160,6 +162,8 @@ public class Transaction
 - `POST /api/receipts` - multipart upload; stores metadata, queues OCR job (Tesseract.js worker or AWS Textract).
 - `GET /api/receipts/{id}` - fetch OCR text, status, linked transaction.
 - `POST /api/receipts/{id}/parse` - manual re-run of OCR or classification.
+- `POST /api/receipts/{id}/assign` - bookkeeper-to-bookkeeper handoff (single or bulk) with audit comment; only owners/admins can reassign.
+- `POST /api/receipts/{id}/approve` - bookkeeper posts with account selections; validates that caller matches `AssignedBookkeeperId` unless elevated role override.
 
 ### Reporting
 - `GET /api/reports/income-statement?period=` — aggregates revenue/expense accounts by month or YTD.
@@ -218,12 +222,13 @@ App
 
 ## 7. Invoice-to-Entry Flow
 
-1. **Capture & Upload** – Users scan or photograph invoices/receipts and upload them via the Receipts UI. Records are saved with `TransactionId = NULL` so source documents exist even before categorization.
+1. **Capture & Upload** – Users scan or photograph invoices/receipts and upload them via the Receipts UI. Records are saved with `TransactionId = NULL` so source documents exist even before categorization. The uploader automatically becomes the owner responsible for posting unless they reassign later; there is no "unassigned" state.
 2. **OCR Processing** – Uploads trigger OCR jobs (Tesseract or Textract). The pipeline normalizes the image, extracts header/line data, stores OCR text/confidence, and updates the receipt status (`Pending`, `Processed`, `Needs Review`).
-3. **Review & Categorization** – Accountants review the processed data submitted by Bookkeepers, confirm or adjust the OCR fields, and pick the leaf account (Posting Entity). Auto-categorization suggestions can prefill selections but users retain control.
-4. **Transaction Creation/Linking** – From the review screen an accountant either creates a new transaction prepopulated with receipt totals/dates or links the receipt to an existing draft transaction. A transaction can reference many receipts; each receipt ultimately links to only one transaction.
-5. **Double-Entry Completion** – The user finishes the debit/credit entries (Account Purpose + Posting Entity) so the transaction balances, then posts it. Posting locks the receipts to the finalized entries.
-6. **Audit & Retrieval** – Reports and ledgers can drill down from any transaction/entry to its linked receipts for supporting evidence. Unassigned receipts remain flagged until attached to a transaction.
+3. **Ownership & Reassignment** – The uploading bookkeeper automatically owns the receipt for review/posting. If workloads shift (e.g., bulk handoff of hundreds of receipts), they reassign in bulk with an audit note so the new owner is accountable.
+4. **Review & Categorization** – Accountants review the processed data submitted by Bookkeepers, confirm or adjust the OCR fields, and pick the leaf account (Posting Entity). Auto-categorization suggestions can prefill selections but users retain control.
+5. **Transaction Creation/Linking** – From the review screen an accountant either creates a new transaction prepopulated with receipt totals/dates or links the receipt to an existing draft transaction. A transaction can reference many receipts; each receipt ultimately links to only one transaction.
+6. **Double-Entry Completion** – The user finishes the debit/credit entries (Account Purpose + Posting Entity) so the transaction balances, then posts it. Posting locks the receipts to the finalized entries.
+7. **Audit & Retrieval** – Reports and ledgers can drill down from any transaction/entry to its linked receipts for supporting evidence. Unassigned receipts remain flagged until attached to a transaction.
 
 ## 8. Security and Validation
 

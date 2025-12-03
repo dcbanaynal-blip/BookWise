@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BookWise.Infrastructure.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+367751485e9ecffb9a2180ddd4867274e6f48c8f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+274cfa2c9d96c1e59caaa6e460201c0bb4a036db")]
 [assembly: System.Reflection.AssemblyProductAttribute("BookWise.Infrastructure.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BookWise.Infrastructure.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
