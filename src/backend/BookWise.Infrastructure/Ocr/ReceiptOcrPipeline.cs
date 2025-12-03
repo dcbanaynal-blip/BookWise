@@ -28,31 +28,52 @@ public class ReceiptOcrPipeline : IReceiptOcrPipeline
 
     public async Task<int> PreprocessPendingReceiptsAsync(int batchSize, CancellationToken cancellationToken = default)
     {
-        var receipts = await _dbContext.Receipts
-            .Where(r => r.Status == ReceiptStatus.Pending)
-            .OrderBy(r => r.ReceiptId)
+        var jobs = await _dbContext.ReceiptProcessingJobs
+            .AsTracking()
+            .Include(job => job.Receipt)
+            .Where(job => job.Status == ReceiptProcessingStatus.Pending)
+            .OrderBy(job => job.CreatedAt)
             .Take(batchSize)
             .ToListAsync(cancellationToken);
 
-        foreach (var receipt in receipts)
+        if (jobs.Count == 0)
         {
+            return 0;
+        }
+
+        var now = DateTime.UtcNow;
+
+        foreach (var job in jobs)
+        {
+            job.Status = ReceiptProcessingStatus.Processing;
+            job.StartedAt = now;
+
+            var receipt = job.Receipt;
+            if (receipt is null)
+            {
+                job.Status = ReceiptProcessingStatus.Failed;
+                job.CompletedAt = DateTime.UtcNow;
+                continue;
+            }
+
             try
             {
                 receipt.ImageData = await _preprocessor.NormalizeAsync(receipt.ImageData, cancellationToken);
                 receipt.Status = ReceiptStatus.Processing;
+                job.Status = ReceiptProcessingStatus.Completed;
+                job.CompletedAt = DateTime.UtcNow;
             }
             catch (Exception ex)
             {
+                job.Status = ReceiptProcessingStatus.Failed;
+                job.CompletedAt = DateTime.UtcNow;
+                job.RetryCount += 1;
                 receipt.Status = ReceiptStatus.Failed;
                 _logger.LogError(ex, "Failed preprocessing receipt {ReceiptId}", receipt.ReceiptId);
             }
         }
 
-        if (receipts.Count > 0)
-        {
-            await _dbContext.SaveChangesAsync(cancellationToken);
-        }
-
-        return receipts.Count;
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return jobs.Count;
     }
 }
