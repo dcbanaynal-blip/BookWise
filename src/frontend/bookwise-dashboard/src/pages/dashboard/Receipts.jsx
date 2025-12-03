@@ -26,6 +26,11 @@ export function Receipts() {
     notes: "",
   });
   const [error, setError] = useState("");
+  const [reviewTarget, setReviewTarget] = useState(null);
+  const sampleReceipt = {
+    receiptId: 1,
+    notes: "Sample OCR extract...\nTotal: 123.45",
+  };
 
   const handleToggle = () => {
     setUploadOpen(prev => !prev);
@@ -70,6 +75,9 @@ export function Receipts() {
           <Typography variant="small" color="blue-gray">
             Phase 3 will add upload controls, processing indicators, and review tools here. For now, this page verifies the navigation flow for Admins, Accountants, and Bookkeepers.
           </Typography>
+          <Button variant="text" color="blue" onClick={() => setReviewTarget(sampleReceipt)} className="mt-4">
+            Preview Review Drawer
+          </Button>
         </CardBody>
       </Card>
 
@@ -101,6 +109,35 @@ export function Receipts() {
             </Button>
           </DialogFooter>
         </form>
+      </Dialog>
+
+      <Dialog open={Boolean(reviewTarget)} handler={() => setReviewTarget(null)} size="lg">
+        <DialogHeader>Review Receipt</DialogHeader>
+        <DialogBody divider className="space-y-4">
+          <Typography variant="small" color="blue-gray">
+            OCR Text
+          </Typography>
+          <Textarea value={reviewTarget?.notes ?? ""} onChange={() => {}} />
+          <div className="flex flex-col gap-3">
+            <Typography variant="small" color="gray">Link this receipt to a transaction:</Typography>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button color="blue" variant="outlined" className="flex-1">
+                Start New Draft Transaction
+              </Button>
+              <Button color="green" className="flex-1">
+                Link to Existing Transaction
+              </Button>
+            </div>
+          </div>
+        </DialogBody>
+        <DialogFooter>
+          <Button variant="text" color="gray" onClick={() => setReviewTarget(null)} className="mr-2">
+            Close
+          </Button>
+          <Button color="blue" onClick={() => setReviewTarget(null)}>
+            Mark Ready
+          </Button>
+        </DialogFooter>
       </Dialog>
     </div>
   );
