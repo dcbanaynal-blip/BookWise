@@ -10,6 +10,7 @@ Roadmap for delivering end-to-end receipt ingestion (upload -> OCR -> review -> 
 - **UI:** The dashboard shows mock data only. No authenticated calls to the API, no real upload form, no review drawer tied to OCR output, and no posting action to `/api/receipts/{id}/approve`.
 - **Concurrency:** Multiple bookkeepers may upload/review simultaneously, yet there is no notion of claim/ownership, per-user progress tracking, or collision avoidance when two users edit the same receipt.
 - **Bulk handoffs:** Bookkeepers often upload hundreds of receipts before reassigning posting duties; there is no explicit, audited bulk handoff workflow to move large batches between users.
+- **Ownership classification:** Receipts need tagging/grouping by ownership type (Sole Prop vs Partnership vs Corporation) for compliance, but no schema/UI/API currently exposes that dimension.
 - **End-to-end posting goal:** After OCR completes, bookkeepers must route each receipt to the correct accounts and hand off to accountants. Today this requires manual API calls with JSON; there is no guided UI, batch-posting experience, role-specific queue, or audit surface.
 
 ---
@@ -62,6 +63,7 @@ Roadmap for delivering end-to-end receipt ingestion (upload -> OCR -> review -> 
 - [ ] **6.6** Implement role-aware UI states: bookkeepers see only receipts they own (upload -> post), accountants see review/approval queues; no unassigned records exist because the uploader is the default owner.
 - [ ] **6.7** Support multi-select uploads (hundreds at a time) with per-file progress, retry, and ownership indicators so concurrent bookkeepers can ingest large batches without conflicts.
 - [ ] **6.8** Provide UI to bulk reassign receipts (with audit notes) so bookkeepers explicitly hand off capture/posting responsibility for 100+ receipt batches when needed.
+- [ ] **6.9** Add ownership-type facets (Sole Prop, Partnership, Corporation, etc.) to receipts list/review UI so bookkeepers can filter and group work by entity classification.
 
 ## Phase 7 - Posting Workflow & Transaction Finalization
 - [ ] **7.1** Expose "Ready to Post" queue endpoints filtering receipts with completed OCR but pending decisions, including assignment metadata/pagination (since every receipt has an owner from upload).
@@ -73,3 +75,5 @@ Roadmap for delivering end-to-end receipt ingestion (upload -> OCR -> review -> 
 - [ ] **7.7** Update schema (Receipts/ReceiptProcessingJobs) with ownership + audit columns (AssignedBookkeeperId, ClaimedAt, LockedBy, etc.) and expose them via EF migrations.
 - [ ] **7.8** Build receipt assignment & locking flows (bulk claim/release APIs, activity logs, conflict warnings) so multiple bookkeepers/accountants can coordinate safely even when hundreds of receipts change hands.
 - [ ] **7.9** Enforce posting authorization rules: only the assigned bookkeeper (or elevated role) may post unless a tracked reassignment occurs; surface audit logs for uploads/postings/reassignments.
+- [ ] **7.10** Extend receipt/transaction metadata + seed data to capture ownership type (Sole Prop/Partnership/Corporation) with validation, reporting filters, and defaulting per client.
+- [ ] **7.11** Externalize ownership types (reference table + admin API/UI) so new classifications can be added without code changes, and update enums/validation accordingly.
